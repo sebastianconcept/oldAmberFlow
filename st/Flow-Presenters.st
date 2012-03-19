@@ -86,8 +86,10 @@ ifAbsentAt: aKey put: aBlock
 	as (sub)widget of this widget.
 	Conveniently, answers that very presenter"
 	
-	^ (self hasPresenterAt: aKey) ifFalse:[
-		self at: aKey put: aBlock value]
+	(self hasPresenterAt: aKey) ifFalse:[
+		self at: aKey put: aBlock value].
+
+	^ self at: aKey
 !
 
 ifAbsentAt: aKey put: aBlock andDo: anotherBlock
@@ -98,7 +100,9 @@ ifAbsentAt: aKey put: aBlock andDo: anotherBlock
 	
 	(self hasPresenterAt: aKey) ifFalse:[
 		self at: aKey put: aBlock value.
-		anotherBlock value]
+		anotherBlock value] .
+
+	^ self at: aKey
 !
 
 componentsAt: aKey put: aPresenter 
@@ -369,11 +373,14 @@ presenterFor: anItem
 	"Answers the presenter that corresponds to anItem.
 	If this presenter doesn't have a subpresenter for anItem,
 	it'll be lazily created."
+	| itemPresenter |
 
-	^ self 
+	itemPresenter := self 
 		ifAbsentAt: anItem 
 		put:[self makePresenterFor: anItem]
-		andDo:[self observeItemPresenter: (self at: anItem) ]
+		andDo:[self observeItemPresenter: (self at: anItem) ].
+
+	^ itemPresenter
 !
 
 presenterClassFor: anItem
@@ -400,6 +407,7 @@ makePresenterFor: anItem
 	| itemPresenter |
 
 	itemPresenter := (self presenterClassFor: anItem) new.
+
 	self onModel: anItem for: itemPresenter.
 
 	^ itemPresenter
@@ -447,6 +455,11 @@ getItemsDo: aBlock
 showLoader
 
 	self loader asJQuery hide fadeIn
+!
+
+hideLoader
+
+	self loader asJQuery hide fadeOut: 0.5
 ! !
 
 !ItemsPresenter methodsFor: 'initializing'!
@@ -464,14 +477,20 @@ paintOn: html
 	Once they arrive, they get created lazily and the loader will be hidden and the items' presenters will be pained"
 	
 	self showLoader.
-	self paintItemsOn: html
+	self loadAndPaintOn: html
 !
 
 paintItemsOn: html
 
+	items do:[:item|
+		self paint: (self presenterFor: item)].
+!
+
+loadAndPaintOn: html
+
 	self itemsDo:[
-		self onItemsDo:[
-			self paintItemsOn: html]]
+		self hideLoader.
+		self paintItemsOn: html]
 ! !
 
 !ItemsPresenter methodsFor: 'reactions'!

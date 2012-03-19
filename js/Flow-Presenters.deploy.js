@@ -256,7 +256,8 @@ smalltalk.method({
 selector: unescape('ifAbsentAt%3Aput%3A'),
 fn: function (aKey, aBlock){
 var self=this;
-return ((($receiver = smalltalk.send(self, "_hasPresenterAt_", [aKey])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})]));
+((($receiver = smalltalk.send(self, "_hasPresenterAt_", [aKey])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})]));
+return smalltalk.send(self, "_at_", [aKey]);
 return self;}
 }),
 smalltalk.Presenter);
@@ -265,9 +266,10 @@ smalltalk.addMethod(
 unescape('_ifAbsentAt_put_andDo_'),
 smalltalk.method({
 selector: unescape('ifAbsentAt%3Aput%3AandDo%3A'),
-fn: function (aKey, aBlock, anotherBlock) {
+fn: function (aKey, aBlock, anotherBlock){
 var self=this;
 ((($receiver = smalltalk.send(self, "_hasPresenterAt_", [aKey])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);return smalltalk.send(anotherBlock, "_value", []);})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);return smalltalk.send(anotherBlock, "_value", []);})]));
+return smalltalk.send(self, "_at_", [aKey]);
 return self;}
 }),
 smalltalk.Presenter);
@@ -586,7 +588,7 @@ selector: unescape('paintOn%3A'),
 fn: function (html){
 var self=this;
 smalltalk.send(self, "_showLoader", []);
-smalltalk.send(self, "_paintItemsOn_", [html]);
+smalltalk.send(self, "_loadAndPaintOn_", [html]);
 return self;}
 }),
 smalltalk.ItemsPresenter);
@@ -608,7 +610,9 @@ smalltalk.method({
 selector: unescape('presenterFor%3A'),
 fn: function (anItem){
 var self=this;
-return smalltalk.send(self, "_ifAbsentAt_put_andDo_", [anItem, (function(){return smalltalk.send(self, "_makePresenterFor_", [anItem]);}), (function(){return smalltalk.send(self, "_observeItemPresenter_", [smalltalk.send(self, "_at_", [anItem])]);})]);
+var itemPresenter=nil;
+(itemPresenter=smalltalk.send(self, "_ifAbsentAt_put_andDo_", [anItem, (function(){return smalltalk.send(self, "_makePresenterFor_", [anItem]);}), (function(){return smalltalk.send(self, "_observeItemPresenter_", [smalltalk.send(self, "_at_", [anItem])]);})]));
+return itemPresenter;
 return self;}
 }),
 smalltalk.ItemsPresenter);
@@ -699,7 +703,7 @@ smalltalk.method({
 selector: unescape('paintItemsOn%3A'),
 fn: function (html){
 var self=this;
-smalltalk.send(self, "_itemsDo_", [(function(){return smalltalk.send(self, "_onItemsDo_", [(function(){return smalltalk.send(self, "_paintItemsOn_", [html]);})]);})]);
+smalltalk.send(self['@items'], "_do_", [(function(item){return smalltalk.send(self, "_paint_", [smalltalk.send(self, "_presenterFor_", [item])]);})]);
 return self;}
 }),
 smalltalk.ItemsPresenter);
@@ -755,6 +759,28 @@ selector: unescape('showLoader'),
 fn: function (){
 var self=this;
 smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(self, "_loader", []), "_asJQuery", []), "_hide", []), "_fadeIn", []);
+return self;}
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_hideLoader'),
+smalltalk.method({
+selector: unescape('hideLoader'),
+fn: function (){
+var self=this;
+smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(self, "_loader", []), "_asJQuery", []), "_hide", []), "_fadeOut_", [(0.5)]);
+return self;}
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_loadAndPaintOn_'),
+smalltalk.method({
+selector: unescape('loadAndPaintOn%3A'),
+fn: function (html){
+var self=this;
+smalltalk.send(self, "_itemsDo_", [(function(){smalltalk.send(self, "_hideLoader", []);return smalltalk.send(self, "_paintItemsOn_", [html]);})]);
 return self;}
 }),
 smalltalk.ItemsPresenter);

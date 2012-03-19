@@ -367,11 +367,12 @@ selector: unescape('ifAbsentAt%3Aput%3A'),
 category: 'accessing',
 fn: function (aKey, aBlock){
 var self=this;
-return ((($receiver = smalltalk.send(self, "_hasPresenterAt_", [aKey])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})]));
+((($receiver = smalltalk.send(self, "_hasPresenterAt_", [aKey])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){return smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);})]));
+return smalltalk.send(self, "_at_", [aKey]);
 return self;},
 args: ["aKey", "aBlock"],
-source: unescape('ifAbsentAt%3A%20aKey%20put%3A%20aBlock%0A%09%22Conditionally%20%28to%20its%20abscence%29%20adds%20the%20presenter%20returned%20by%20aBlock%0A%09as%20%28sub%29widget%20of%20this%20widget.%0A%09Conveniently%2C%20answers%20that%20very%20presenter%22%0A%09%0A%09%5E%20%28self%20hasPresenterAt%3A%20aKey%29%20ifFalse%3A%5B%0A%09%09self%20at%3A%20aKey%20put%3A%20aBlock%20value%5D%20'),
-messageSends: ["ifFalse:", "hasPresenterAt:", "at:put:", "value"],
+source: unescape('ifAbsentAt%3A%20aKey%20put%3A%20aBlock%0A%09%22Conditionally%20%28to%20its%20abscence%29%20adds%20the%20presenter%20returned%20by%20aBlock%0A%09as%20%28sub%29widget%20of%20this%20widget.%0A%09Conveniently%2C%20answers%20that%20very%20presenter%22%0A%09%0A%09%28self%20hasPresenterAt%3A%20aKey%29%20ifFalse%3A%5B%0A%09%09self%20at%3A%20aKey%20put%3A%20aBlock%20value%5D.%0A%0A%09%5E%20self%20at%3A%20aKey'),
+messageSends: ["ifFalse:", "hasPresenterAt:", "at:put:", "value", "at:"],
 referencedClasses: []
 }),
 smalltalk.Presenter);
@@ -381,13 +382,14 @@ unescape('_ifAbsentAt_put_andDo_'),
 smalltalk.method({
 selector: unescape('ifAbsentAt%3Aput%3AandDo%3A'),
 category: 'accessing',
-fn: function (aKey, aBlock, anotherBlock) {
+fn: function (aKey, aBlock, anotherBlock){
 var self=this;
 ((($receiver = smalltalk.send(self, "_hasPresenterAt_", [aKey])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);return smalltalk.send(anotherBlock, "_value", []);})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){smalltalk.send(self, "_at_put_", [aKey, smalltalk.send(aBlock, "_value", [])]);return smalltalk.send(anotherBlock, "_value", []);})]));
+return smalltalk.send(self, "_at_", [aKey]);
 return self;},
 args: ["aKey", "aBlock", "anotherBlock"],
-source: unescape('ifAbsentAt%3A%20aKey%20put%3A%20aBlock%20andDo%3A%20anotherBlock%0A%09%22Conditionally%20%28to%20its%20abscence%29%20adds%20the%20presenter%20answered%20by%20aBlock%0A%09as%20%28sub%29widget%20of%20this%20widget%20and%20then%20evaluates%20anotherBlock.%0A%09Note%3A%20the%20typical%20applicability%20of%20anotherBlock%20is%20the%20configuration%20%0A%09of%20the%20observation%20of%20sub%20widgets%27%20announcements%22%0A%09%0A%09%28self%20hasPresenterAt%3A%20aKey%29%20ifFalse%3A%5B%0A%09%09self%20at%3A%20aKey%20put%3A%20aBlock%20value.%0A%09%09anotherBlock%20value%5D%20'),
-messageSends: ["ifFalse:", "hasPresenterAt:", "at:put:", "value"],
+source: unescape('ifAbsentAt%3A%20aKey%20put%3A%20aBlock%20andDo%3A%20anotherBlock%0A%09%22Conditionally%20%28to%20its%20abscence%29%20adds%20the%20presenter%20answered%20by%20aBlock%0A%09as%20%28sub%29widget%20of%20this%20widget%20and%20then%20evaluates%20anotherBlock.%0A%09Note%3A%20the%20typical%20applicability%20of%20anotherBlock%20is%20the%20configuration%20%0A%09of%20the%20observation%20of%20sub%20widgets%27%20announcements%22%0A%09%0A%09%28self%20hasPresenterAt%3A%20aKey%29%20ifFalse%3A%5B%0A%09%09self%20at%3A%20aKey%20put%3A%20aBlock%20value.%0A%09%09anotherBlock%20value%5D%20.%0A%0A%09%5E%20self%20at%3A%20aKey'),
+messageSends: ["ifFalse:", "hasPresenterAt:", "at:put:", "value", "at:"],
 referencedClasses: []
 }),
 smalltalk.Presenter);
@@ -843,11 +845,11 @@ category: 'painting',
 fn: function (html){
 var self=this;
 smalltalk.send(self, "_showLoader", []);
-smalltalk.send(self, "_paintItemsOn_", [html]);
+smalltalk.send(self, "_loadAndPaintOn_", [html]);
 return self;},
 args: ["html"],
-source: unescape('paintOn%3A%20html%0A%09%22Paints%20the%20presenters%20for%20the%20items.%0A%09Note%3A%20this%20will%20paint%20the%20loader%20bar%20until%20it%20gets%20the%20results%20about%20querying%20the%20items.%0A%09Once%20they%20arrive%2C%20they%20get%20created%20lazily%20and%20the%20loader%20will%20be%20hidden%20and%20the%20items%27%20presenters%20will%20be%20pained%22%0A%09%0A%09self%20showLoader.%0A%09self%20paintItemsOn%3A%20html'),
-messageSends: ["showLoader", "paintItemsOn:"],
+source: unescape('paintOn%3A%20html%0A%09%22Paints%20the%20presenters%20for%20the%20items.%0A%09Note%3A%20this%20will%20paint%20the%20loader%20bar%20until%20it%20gets%20the%20results%20about%20querying%20the%20items.%0A%09Once%20they%20arrive%2C%20they%20get%20created%20lazily%20and%20the%20loader%20will%20be%20hidden%20and%20the%20items%27%20presenters%20will%20be%20pained%22%0A%09%0A%09self%20showLoader.%0A%09self%20loadAndPaintOn%3A%20html'),
+messageSends: ["showLoader", "loadAndPaintOn:"],
 referencedClasses: []
 }),
 smalltalk.ItemsPresenter);
@@ -875,10 +877,12 @@ selector: unescape('presenterFor%3A'),
 category: 'accessing',
 fn: function (anItem){
 var self=this;
-return smalltalk.send(self, "_ifAbsentAt_put_andDo_", [anItem, (function(){return smalltalk.send(self, "_makePresenterFor_", [anItem]);}), (function(){return smalltalk.send(self, "_observeItemPresenter_", [smalltalk.send(self, "_at_", [anItem])]);})]);
+var itemPresenter=nil;
+(itemPresenter=smalltalk.send(self, "_ifAbsentAt_put_andDo_", [anItem, (function(){return smalltalk.send(self, "_makePresenterFor_", [anItem]);}), (function(){return smalltalk.send(self, "_observeItemPresenter_", [smalltalk.send(self, "_at_", [anItem])]);})]));
+return itemPresenter;
 return self;},
 args: ["anItem"],
-source: unescape('presenterFor%3A%20anItem%0A%09%22Answers%20the%20presenter%20that%20corresponds%20to%20anItem.%0A%09If%20this%20presenter%20doesn%27t%20have%20a%20subpresenter%20for%20anItem%2C%0A%09it%27ll%20be%20lazily%20created.%22%0A%0A%09%5E%20self%20%0A%09%09ifAbsentAt%3A%20anItem%20%0A%09%09put%3A%5Bself%20makePresenterFor%3A%20anItem%5D%0A%09%09andDo%3A%5Bself%20observeItemPresenter%3A%20%28self%20at%3A%20anItem%29%20%5D%0A%09'),
+source: unescape('presenterFor%3A%20anItem%0A%09%22Answers%20the%20presenter%20that%20corresponds%20to%20anItem.%0A%09If%20this%20presenter%20doesn%27t%20have%20a%20subpresenter%20for%20anItem%2C%0A%09it%27ll%20be%20lazily%20created.%22%0A%09%7C%20itemPresenter%20%7C%0A%0A%09itemPresenter%20%3A%3D%20self%20%0A%09%09ifAbsentAt%3A%20anItem%20%0A%09%09put%3A%5Bself%20makePresenterFor%3A%20anItem%5D%0A%09%09andDo%3A%5Bself%20observeItemPresenter%3A%20%28self%20at%3A%20anItem%29%20%5D.%0A%0A%09%5E%20itemPresenter%0A%09'),
 messageSends: ["ifAbsentAt:put:andDo:", "makePresenterFor:", "observeItemPresenter:", "at:"],
 referencedClasses: []
 }),
@@ -897,7 +901,7 @@ smalltalk.send(self, "_onModel_for_", [anItem, itemPresenter]);
 return itemPresenter;
 return self;},
 args: ["anItem"],
-source: unescape('makePresenterFor%3A%20anItem%0A%09%22Answers%20a%20new%20presenter%20corresponding%20to%20anItem.%22%0A%0A%09%7C%20itemPresenter%20%7C%0A%0A%09itemPresenter%20%3A%3D%20%28self%20presenterClassFor%3A%20anItem%29%20new.%0A%09self%20onModel%3A%20anItem%20for%3A%20itemPresenter.%0A%0A%09%5E%20itemPresenter'),
+source: unescape('makePresenterFor%3A%20anItem%0A%09%22Answers%20a%20new%20presenter%20corresponding%20to%20anItem.%22%0A%0A%09%7C%20itemPresenter%20%7C%0A%0A%09itemPresenter%20%3A%3D%20%28self%20presenterClassFor%3A%20anItem%29%20new.%0A%0A%09self%20onModel%3A%20anItem%20for%3A%20itemPresenter.%0A%0A%09%5E%20itemPresenter'),
 messageSends: ["new", "presenterClassFor:", "onModel:for:"],
 referencedClasses: []
 }),
@@ -1006,11 +1010,11 @@ selector: unescape('paintItemsOn%3A'),
 category: 'painting',
 fn: function (html){
 var self=this;
-smalltalk.send(self, "_itemsDo_", [(function(){return smalltalk.send(self, "_onItemsDo_", [(function(){return smalltalk.send(self, "_paintItemsOn_", [html]);})]);})]);
+smalltalk.send(self['@items'], "_do_", [(function(item){return smalltalk.send(self, "_paint_", [smalltalk.send(self, "_presenterFor_", [item])]);})]);
 return self;},
 args: ["html"],
-source: unescape('paintItemsOn%3A%20html%0A%0A%09self%20itemsDo%3A%5B%0A%09%09self%20onItemsDo%3A%5B%0A%09%09%09self%20paintItemsOn%3A%20html%5D%5D%0A'),
-messageSends: ["itemsDo:", "onItemsDo:", "paintItemsOn:"],
+source: unescape('paintItemsOn%3A%20html%0A%0A%09items%20do%3A%5B%3Aitem%7C%0A%09%09self%20paint%3A%20%28self%20presenterFor%3A%20item%29%5D.%0A'),
+messageSends: ["do:", "paint:", "presenterFor:"],
 referencedClasses: []
 }),
 smalltalk.ItemsPresenter);
@@ -1091,6 +1095,38 @@ return self;},
 args: [],
 source: unescape('showLoader%0A%0A%09self%20loader%20asJQuery%20hide%20fadeIn%0A'),
 messageSends: ["fadeIn", "hide", "asJQuery", "loader"],
+referencedClasses: []
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_hideLoader'),
+smalltalk.method({
+selector: unescape('hideLoader'),
+category: 'actions',
+fn: function (){
+var self=this;
+smalltalk.send(smalltalk.send(smalltalk.send(smalltalk.send(self, "_loader", []), "_asJQuery", []), "_hide", []), "_fadeOut_", [(0.5)]);
+return self;},
+args: [],
+source: unescape('hideLoader%0A%0A%09self%20loader%20asJQuery%20hide%20fadeOut%3A%200.5'),
+messageSends: ["fadeOut:", "hide", "asJQuery", "loader"],
+referencedClasses: []
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_loadAndPaintOn_'),
+smalltalk.method({
+selector: unescape('loadAndPaintOn%3A'),
+category: 'painting',
+fn: function (html){
+var self=this;
+smalltalk.send(self, "_itemsDo_", [(function(){smalltalk.send(self, "_hideLoader", []);return smalltalk.send(self, "_paintItemsOn_", [html]);})]);
+return self;},
+args: ["html"],
+source: unescape('loadAndPaintOn%3A%20html%0A%0A%09self%20itemsDo%3A%5B%0A%09%09self%20hideLoader.%0A%09%09self%20paintItemsOn%3A%20html%5D%0A'),
+messageSends: ["itemsDo:", "hideLoader", "paintItemsOn:"],
 referencedClasses: []
 }),
 smalltalk.ItemsPresenter);
