@@ -5,7 +5,7 @@ unescape('_subject'),
 smalltalk.method({
 selector: unescape('subject'),
 category: 'accessing',
-fn: function () {
+fn: function (){
 var self=this;
 return self['@subject'];
 return self;},
@@ -21,7 +21,7 @@ unescape('_subject_'),
 smalltalk.method({
 selector: unescape('subject%3A'),
 category: 'accessing',
-fn: function (anObject) {
+fn: function (anObject){
 var self=this;
 (self['@subject']=anObject);
 return self;},
@@ -37,7 +37,7 @@ unescape('_initialize'),
 smalltalk.method({
 selector: unescape('initialize'),
 category: 'initialization',
-fn: function () {
+fn: function (){
 var self=this;
 smalltalk.send(self, "_initialize", [], smalltalk.Object);
 (self['@isBubbling']=true);
@@ -54,7 +54,7 @@ unescape('_stop'),
 smalltalk.method({
 selector: unescape('stop'),
 category: 'actions',
-fn: function () {
+fn: function (){
 var self=this;
 (self['@isBubbling']=false);
 return self;},
@@ -70,7 +70,7 @@ unescape('_isBubbling'),
 smalltalk.method({
 selector: unescape('isBubbling'),
 category: 'testing',
-fn: function () {
+fn: function (){
 var self=this;
 return self['@isBubbling'];
 return self;},
@@ -87,7 +87,7 @@ unescape('_for_'),
 smalltalk.method({
 selector: unescape('for%3A'),
 category: 'not yet classified',
-fn: function (anObject) {
+fn: function (anObject){
 var self=this;
 return (function($rec){smalltalk.send($rec, "_subject_", [anObject]);return smalltalk.send($rec, "_yourself", []);})(smalltalk.send(self, "_new", []));
 return self;},
@@ -112,5 +112,8 @@ smalltalk.addClass('ModelDeleted', smalltalk.Announcement, [], 'Flow-Announcemen
 
 
 smalltalk.addClass('ModelRefreshed', smalltalk.Announcement, [], 'Flow-Announcements');
+
+
+smalltalk.addClass('ItemsLoaded', smalltalk.Announcement, [], 'Flow-Announcements');
 
 

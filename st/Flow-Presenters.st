@@ -1,6 +1,6 @@
 Smalltalk current createPackage: 'Flow-Presenters' properties: #{}!
 Widget subclass: #Presenter
-	instanceVariableNames: 'children model announcer parent visible wrapper'
+	instanceVariableNames: 'children model announcer parent wrapper'
 	category: 'Flow-Presenters'!
 
 !Presenter methodsFor: 'accessing'!
@@ -25,9 +25,8 @@ parent
 	^ parent
 !
 
-parent: aKdWidget
-
-	parent := aKdWidget
+parent: aPresenter
+	parent := aPresenter
 !
 
 children
@@ -43,25 +42,6 @@ at: aKey ifAbsent: aBlock
 at: aKey
 	"Answers the (sub)widget stored in this receiver at aKey"
 	^ self children at: aKey
-!
-
-allSubChildren
-
-	^ self addAllSubChildrenTo: Set new
-!
-
-addAllSubChildrenTo: aSet
-	"Adds all the sub children of the receiver to aSet."
-	
-	| subChildren |
-	
-	subChildren := self children values.
-	subChildren do:[:aKdWidget|
-		aKdWidget ifNotNil:[
-			aSet add: aKdWidget.
-			aKdWidget addAllSubChildrenTo: aSet]].
-	
-	^ aSet
 !
 
 at: aKey put: aPresenter 
@@ -150,6 +130,32 @@ asJQuery
 wrapper
 
 	^ wrapper
+!
+
+allSubPresenters
+
+	^ self addAllSubPresentersTo: Set new
+!
+
+addAllSubPresentersTo: aSet
+	"Adds all the sub presenters of the receiver to aSet."
+	
+	self subPpresenters do:[:aPresenter|
+		aPresenter ifNotNil:[
+			aSet add: aPresenter.
+			aPresenter addAllSubPresentersTo: aSet]].
+	
+	^ aSet
+!
+
+subPresenters
+
+	^ self children values
+!
+
+tr
+
+	^ tr
 ! !
 
 !Presenter methodsFor: 'actions'!
@@ -184,12 +190,14 @@ newCanvasOn: aJQuery
 
 hide
 
-	wrapper asJQuery hide
+	wrapper asJQuery hide.
+	self onHide.
 !
 
 show
 
-	wrapper asJQuery show
+	wrapper asJQuery show.
+	self onShow
 !
 
 append: aPresenter
@@ -213,6 +221,30 @@ hideAll
 		child := self at: each ifAbsent:[nil].
 		child ifNotNil:[
 			child hide]].
+!
+
+newCanvas
+	"Answers a new canvas based on the JQuery element wrapping this presenter."
+
+	^ self newCanvasOn: self asJQuery
+!
+
+remove: aPresenter
+	"Removes aPresenter from this presenter and from the DOM.
+	Note: JQuery takes care of terminating event observations."
+	| target |
+
+	self children keysAndValuesDo:[:k :v|	
+		(v == aPresenter) ifTrue:[
+			target := k]].
+
+	self children removeKey: target ifAbsent:[^nil].
+	aPresenter asJQuery remove
+!
+
+removeAll
+
+	self subPresenters do:[:e| self remove: e]
 ! !
 
 !Presenter methodsFor: 'initialization'!
@@ -240,6 +272,29 @@ initializeVisible
 	behavior can decide elsewere how (and if) this presenter should appear."
 
 	^ visible := false
+!
+
+initialize
+
+	super initialize.
+
+	painted := false
+! !
+
+!Presenter methodsFor: 'painting'!
+
+paintOn: html
+	"Paints the content (the wrapped content, like wrapper NOT included)
+	of this presenter. Sub classes should override as appropiate."
+	
+	"default is paint nothing"
+	^ self
+!
+
+paintOnJQuery: aJQuery
+	"Appends what's being paint by this presenter to aJQuery."
+
+	self appendToJQuery: aJQuery
 ! !
 
 !Presenter methodsFor: 'reactions'!
@@ -261,36 +316,32 @@ onAboutToUpdateModel: aModel
 onAboutToOpen
 
 	"no-op"
+!
+
+onHide
+
+	"no-op"
+!
+
+onShow
+
+	"no-op"
 ! !
 
 !Presenter methodsFor: 'rendering'!
 
 renderOn: html
-	"Render this presenter.
+	"Start to paint this presenter.
 	Note: presenters are always wrapped in a div using as CSS class
 	it's class name."
-
-	painted := true.
 
 	wrapper := html div.
 	
 	wrapper
 		class: self class name;
-		with:[self paintOn: html]
-!
+		with:[self paintOn: html].
 
-paintOn: html
-	"Paints the content (the wrapped content, like wrapper NOT included)
-	of this presenter. Sub classes should override as appropiate."
-	
-	"default is paint nothing"
-	self
-!
-
-paintOnJQuery: aJQuery
-	"Appends what's being paint by this presenter to aJQuery."
-
-	self appendToJQuery: aJQuery
+	painted := true.
 ! !
 
 !Presenter methodsFor: 'testing'!
@@ -345,7 +396,7 @@ What you list in this presenters are the models you set in the #items instVar. N
 
 items
 
-	^ items ifNil:[self error]
+	^ items
 !
 
 items: someModels
@@ -398,7 +449,8 @@ loader
 
 reset
 
-	items := nil
+	self removeAll.
+	items := nil.
 !
 
 makePresenterFor: anItem
@@ -434,7 +486,8 @@ makeLoader
 
 loadItemsDo: aBlock
 	"Loads the items form the getter block and evaluates passing the reaction aBlock to it."
-	items := self getItemsDo: aBlock
+
+	self getItemsDo: aBlock
 !
 
 itemsDo: aBlock
@@ -460,6 +513,14 @@ showLoader
 hideLoader
 
 	self loader asJQuery hide fadeOut: 0.5
+!
+
+refresh
+
+	items ifNil:[^self].
+
+	self reset.
+	self loadAndPaintOn: self newCanvas
 ! !
 
 !ItemsPresenter methodsFor: 'initializing'!
@@ -476,7 +537,6 @@ paintOn: html
 	Note: this will paint the loader bar until it gets the results about querying the items.
 	Once they arrive, they get created lazily and the loader will be hidden and the items' presenters will be pained"
 	
-	self showLoader.
 	self loadAndPaintOn: html
 !
 
@@ -488,8 +548,10 @@ paintItemsOn: html
 
 loadAndPaintOn: html
 
+	self onAboutToLoad.
+
 	self itemsDo:[
-		self hideLoader.
+		self onAfterLoaded.
 		self paintItemsOn: html]
 ! !
 
@@ -501,8 +563,23 @@ onModel: anItem for: anItemPresenter
 	anItemPresenter model: anItem
 !
 
-onItemsLoadedDo: aBlock
+onAboutToLoad
 
-	self loader fadeOut: 0.5 do: aBlock
+	self showLoader
+!
+
+onAfterLoaded
+
+	self hideLoader.
+	
+	self announce: ItemsLoaded new.
+! !
+
+!ItemsPresenter methodsFor: 'testing'!
+
+hasItems
+
+	^ items notNil and:[
+	items notEmpty]
 ! !
 

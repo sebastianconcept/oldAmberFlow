@@ -1,5 +1,5 @@
 smalltalk.addPackage('Flow-Presenters', {});
-smalltalk.addClass('Presenter', smalltalk.Widget, ['children', 'model', 'announcer', 'parent', 'visible', 'wrapper'], 'Flow-Presenters');
+smalltalk.addClass('Presenter', smalltalk.Widget, ['children', 'model', 'announcer', 'parent', 'wrapper'], 'Flow-Presenters');
 smalltalk.addMethod(
 unescape('_announcer'),
 smalltalk.method({
@@ -60,9 +60,9 @@ smalltalk.addMethod(
 unescape('_parent_'),
 smalltalk.method({
 selector: unescape('parent%3A'),
-fn: function (aKdWidget) {
+fn: function (aPresenter){
 var self=this;
-(self['@parent']=aKdWidget);
+(self['@parent']=aPresenter);
 return self;}
 }),
 smalltalk.Presenter);
@@ -82,7 +82,7 @@ smalltalk.addMethod(
 unescape('_initializeChildren'),
 smalltalk.method({
 selector: unescape('initializeChildren'),
-fn: function () {
+fn: function (){
 var self=this;
 return (self['@children']=smalltalk.send((smalltalk.Dictionary || Dictionary), "_new", []));
 return self;}
@@ -107,31 +107,6 @@ selector: unescape('at%3A'),
 fn: function (aKey) {
 var self=this;
 return smalltalk.send(smalltalk.send(self, "_children", []), "_at_", [aKey]);
-return self;}
-}),
-smalltalk.Presenter);
-
-smalltalk.addMethod(
-unescape('_allSubChildren'),
-smalltalk.method({
-selector: unescape('allSubChildren'),
-fn: function () {
-var self=this;
-return smalltalk.send(self, "_addAllSubChildrenTo_", [smalltalk.send((smalltalk.Set || Set), "_new", [])]);
-return self;}
-}),
-smalltalk.Presenter);
-
-smalltalk.addMethod(
-unescape('_addAllSubChildrenTo_'),
-smalltalk.method({
-selector: unescape('addAllSubChildrenTo%3A'),
-fn: function (aSet) {
-var self=this;
-var subChildren=nil;
-(subChildren=smalltalk.send(smalltalk.send(self, "_children", []), "_values", []));
-smalltalk.send(subChildren, "_do_", [(function(aKdWidget){return (($receiver = aKdWidget) != nil && $receiver != undefined) ? (function(){smalltalk.send(aSet, "_add_", [aKdWidget]);return smalltalk.send(aKdWidget, "_addAllSubChildrenTo_", [aSet]);})() : nil;})]);
-return aSet;
 return self;}
 }),
 smalltalk.Presenter);
@@ -370,11 +345,11 @@ smalltalk.addMethod(
 unescape('_renderOn_'),
 smalltalk.method({
 selector: unescape('renderOn%3A'),
-fn: function (html) {
+fn: function (html){
 var self=this;
-(self['@painted']=true);
 (self['@wrapper']=smalltalk.send(html, "_div", []));
 (function($rec){smalltalk.send($rec, "_class_", [smalltalk.send(smalltalk.send(self, "_class", []), "_name", [])]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(self, "_paintOn_", [html]);})]);})(self['@wrapper']);
+(self['@painted']=true);
 return self;}
 }),
 smalltalk.Presenter);
@@ -383,9 +358,10 @@ smalltalk.addMethod(
 unescape('_hide'),
 smalltalk.method({
 selector: unescape('hide'),
-fn: function () {
+fn: function (){
 var self=this;
 smalltalk.send(smalltalk.send(self['@wrapper'], "_asJQuery", []), "_hide", []);
+smalltalk.send(self, "_onHide", []);
 return self;}
 }),
 smalltalk.Presenter);
@@ -394,9 +370,10 @@ smalltalk.addMethod(
 unescape('_show'),
 smalltalk.method({
 selector: unescape('show'),
-fn: function () {
+fn: function (){
 var self=this;
 smalltalk.send(smalltalk.send(self['@wrapper'], "_asJQuery", []), "_show", []);
+smalltalk.send(self, "_onShow", []);
 return self;}
 }),
 smalltalk.Presenter);
@@ -427,9 +404,9 @@ smalltalk.addMethod(
 unescape('_paintOn_'),
 smalltalk.method({
 selector: unescape('paintOn%3A'),
-fn: function (html) {
+fn: function (html){
 var self=this;
-self;
+return self;
 return self;}
 }),
 smalltalk.Presenter);
@@ -490,6 +467,122 @@ return self;}
 }),
 smalltalk.Presenter);
 
+smalltalk.addMethod(
+unescape('_newCanvas'),
+smalltalk.method({
+selector: unescape('newCanvas'),
+fn: function (){
+var self=this;
+return smalltalk.send(self, "_newCanvasOn_", [smalltalk.send(self, "_asJQuery", [])]);
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_remove_'),
+smalltalk.method({
+selector: unescape('remove%3A'),
+fn: function (aPresenter){
+var self=this;
+try{var target=nil;
+smalltalk.send(smalltalk.send(self, "_children", []), "_keysAndValuesDo_", [(function(k, v){return ((($receiver = smalltalk.send(v, "__eq_eq", [aPresenter])).klass === smalltalk.Boolean) ? ($receiver ? (function(){return (target=k);})() : nil) : smalltalk.send($receiver, "_ifTrue_", [(function(){return (target=k);})]));})]);
+smalltalk.send(smalltalk.send(self, "_children", []), "_removeKey_ifAbsent_", [target, (function(){return (function(){throw({name: 'stReturn', selector: '_remove_', fn: function(){return nil}})})();})]);
+smalltalk.send(smalltalk.send(aPresenter, "_asJQuery", []), "_remove", []);
+return self;
+} catch(e) {if(e.name === 'stReturn' && e.selector === '_remove_'){return e.fn()} throw(e)}}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_removeAll'),
+smalltalk.method({
+selector: unescape('removeAll'),
+fn: function (){
+var self=this;
+smalltalk.send(smalltalk.send(self, "_subPresenters", []), "_do_", [(function(e){return smalltalk.send(self, "_remove_", [e]);})]);
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_allSubPresenters'),
+smalltalk.method({
+selector: unescape('allSubPresenters'),
+fn: function (){
+var self=this;
+return smalltalk.send(self, "_addAllSubPresentersTo_", [smalltalk.send((smalltalk.Set || Set), "_new", [])]);
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_addAllSubPresentersTo_'),
+smalltalk.method({
+selector: unescape('addAllSubPresentersTo%3A'),
+fn: function (aSet){
+var self=this;
+smalltalk.send(smalltalk.send(self, "_subPpresenters", []), "_do_", [(function(aPresenter){return (($receiver = aPresenter) != nil && $receiver != undefined) ? (function(){smalltalk.send(aSet, "_add_", [aPresenter]);return smalltalk.send(aPresenter, "_addAllSubPresentersTo_", [aSet]);})() : nil;})]);
+return aSet;
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_subPresenters'),
+smalltalk.method({
+selector: unescape('subPresenters'),
+fn: function (){
+var self=this;
+return smalltalk.send(smalltalk.send(self, "_children", []), "_values", []);
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_onHide'),
+smalltalk.method({
+selector: unescape('onHide'),
+fn: function (){
+var self=this;
+
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_onShow'),
+smalltalk.method({
+selector: unescape('onShow'),
+fn: function (){
+var self=this;
+
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_tr'),
+smalltalk.method({
+selector: unescape('tr'),
+fn: function (){
+var self=this;
+return self['@tr'];
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_initialize'),
+smalltalk.method({
+selector: unescape('initialize'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_initialize", [], smalltalk.Widget);
+(self['@painted']=false);
+return self;}
+}),
+smalltalk.Presenter);
+
 
 smalltalk.addMethod(
 unescape('_for_'),
@@ -532,7 +625,7 @@ smalltalk.method({
 selector: unescape('items'),
 fn: function (){
 var self=this;
-return (($receiver = self['@items']) == nil || $receiver == undefined) ? (function(){return smalltalk.send(self, "_error", []);})() : $receiver;
+return self['@items'];
 return self;}
 }),
 smalltalk.ItemsPresenter);
@@ -554,6 +647,7 @@ smalltalk.method({
 selector: unescape('reset'),
 fn: function (){
 var self=this;
+smalltalk.send(self, "_removeAll", []);
 (self['@items']=nil);
 return self;}
 }),
@@ -587,7 +681,6 @@ smalltalk.method({
 selector: unescape('paintOn%3A'),
 fn: function (html){
 var self=this;
-smalltalk.send(self, "_showLoader", []);
 smalltalk.send(self, "_loadAndPaintOn_", [html]);
 return self;}
 }),
@@ -687,17 +780,6 @@ return self;}
 smalltalk.ItemsPresenter);
 
 smalltalk.addMethod(
-unescape('_onItemsLoadedDo_'),
-smalltalk.method({
-selector: unescape('onItemsLoadedDo%3A'),
-fn: function (aBlock){
-var self=this;
-smalltalk.send(smalltalk.send(self, "_loader", []), "_fadeOut_do_", [(0.5), aBlock]);
-return self;}
-}),
-smalltalk.ItemsPresenter);
-
-smalltalk.addMethod(
 unescape('_paintItemsOn_'),
 smalltalk.method({
 selector: unescape('paintItemsOn%3A'),
@@ -714,7 +796,7 @@ smalltalk.method({
 selector: unescape('loadItemsDo%3A'),
 fn: function (aBlock){
 var self=this;
-(self['@items']=smalltalk.send(self, "_getItemsDo_", [aBlock]));
+smalltalk.send(self, "_getItemsDo_", [aBlock]);
 return self;}
 }),
 smalltalk.ItemsPresenter);
@@ -780,7 +862,56 @@ smalltalk.method({
 selector: unescape('loadAndPaintOn%3A'),
 fn: function (html){
 var self=this;
-smalltalk.send(self, "_itemsDo_", [(function(){smalltalk.send(self, "_hideLoader", []);return smalltalk.send(self, "_paintItemsOn_", [html]);})]);
+smalltalk.send(self, "_onAboutToLoad", []);
+smalltalk.send(self, "_itemsDo_", [(function(){smalltalk.send(self, "_onAfterLoaded", []);return smalltalk.send(self, "_paintItemsOn_", [html]);})]);
+return self;}
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_hasItems'),
+smalltalk.method({
+selector: unescape('hasItems'),
+fn: function (){
+var self=this;
+return smalltalk.send(smalltalk.send(self['@items'], "_notNil", []), "_and_", [(function(){return smalltalk.send(self['@items'], "_notEmpty", []);})]);
+return self;}
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_refresh'),
+smalltalk.method({
+selector: unescape('refresh'),
+fn: function (){
+var self=this;
+try{(($receiver = self['@items']) == nil || $receiver == undefined) ? (function(){return (function(){throw({name: 'stReturn', selector: '_refresh', fn: function(){return self}})})();})() : $receiver;
+smalltalk.send(self, "_reset", []);
+smalltalk.send(self, "_loadAndPaintOn_", [smalltalk.send(self, "_newCanvas", [])]);
+return self;
+} catch(e) {if(e.name === 'stReturn' && e.selector === '_refresh'){return e.fn()} throw(e)}}
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_onAboutToLoad'),
+smalltalk.method({
+selector: unescape('onAboutToLoad'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_showLoader", []);
+return self;}
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_onAfterLoaded'),
+smalltalk.method({
+selector: unescape('onAfterLoaded'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_hideLoader", []);
+smalltalk.send(self, "_announce_", [smalltalk.send((smalltalk.ItemsLoaded || ItemsLoaded), "_new", [])]);
 return self;}
 }),
 smalltalk.ItemsPresenter);

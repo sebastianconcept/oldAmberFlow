@@ -67,3 +67,7 @@ Announcement subclass: #ModelRefreshed
 	instanceVariableNames: ''
 	category: 'Flow-Announcements'!
 
+Announcement subclass: #ItemsLoaded
+	instanceVariableNames: ''
+	category: 'Flow-Announcements'!
+
