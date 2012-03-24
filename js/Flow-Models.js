@@ -689,11 +689,11 @@ selector: unescape('id%3A'),
 category: 'accessing',
 fn: function (aString){
 var self=this;
-smalltalk.send(self['@data'], "_id_", [aString]);
+smalltalk.send(self['@data'], "_at_put_", [smalltalk.symbolFor("id"), aString]);
 return self;},
 args: ["aString"],
-source: unescape('id%3A%20aString%0A%0A%09data%20id%3A%20aString'),
-messageSends: ["id:"],
+source: unescape('id%3A%20aString%0A%0A%09data%20at%3A%20%23id%20put%3A%20aString'),
+messageSends: ["at:put:"],
 referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
@@ -705,11 +705,11 @@ selector: unescape('id'),
 category: 'accessing',
 fn: function (){
 var self=this;
-return smalltalk.send(self['@data'], "_id", []);
+return smalltalk.send(self['@data'], "_at_", [smalltalk.symbolFor("id")]);
 return self;},
 args: [],
-source: unescape('id%0A%0A%09%5E%20data%20id%20'),
-messageSends: ["id"],
+source: unescape('id%0A%0A%09%5E%20data%20at%3A%20%23id%20'),
+messageSends: ["at:"],
 referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
@@ -721,11 +721,11 @@ selector: unescape('url'),
 category: 'accessing',
 fn: function (){
 var self=this;
-return smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send((typeof id == 'undefined' ? nil : id), "_asString", [])]);
+return smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send(smalltalk.send(self, "_id", []), "_asString", [])]);
 return self;},
 args: [],
-source: unescape('url%0A%0A%09%5E%20self%20path%2C%27/%27%2Cid%20asString%0A'),
-messageSends: [unescape("%2C"), "path", "asString"],
+source: unescape('url%0A%0A%09%5E%20self%20path%2C%27/%27%2Cself%20id%20asString%0A'),
+messageSends: [unescape("%2C"), "path", "asString", "id"],
 referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
@@ -754,12 +754,14 @@ selector: unescape('update'),
 category: 'actions',
 fn: function (){
 var self=this;
-smalltalk.send((typeof jQuery == 'undefined' ? nil : jQuery), "_ajax_", [smalltalk.HashedCollection._fromPairs_([smalltalk.send("url", "__minus_gt", [smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send((typeof id == 'undefined' ? nil : id), "_asString", [])])]),smalltalk.send("type", "__minus_gt", ["PUT"]),smalltalk.send("data", "__minus_gt", [smalltalk.send(self, "_asJSONString", [])]),smalltalk.send("success", "__minus_gt", [(function(x){return smalltalk.send(self, "_onAfterUpdate_", [x]);})]),smalltalk.send("fail", "__minus_gt", [(function(x){return smalltalk.send(self, "_onUpdateFail_", [x]);})]),smalltalk.send("error", "__minus_gt", [(function(x){return smalltalk.send(self, "_onUpdateFail_", [x]);})])])]);
+smalltalk.send(self, "_inspect", []);
+(function($rec){smalltalk.send($rec, "_cr", []);return smalltalk.send($rec, "_show_", [smalltalk.send(self, "_asJSONString", [])]);})((smalltalk.Transcript || Transcript));
+smalltalk.send((typeof jQuery == 'undefined' ? nil : jQuery), "_ajax_", [smalltalk.HashedCollection._fromPairs_([smalltalk.send("url", "__minus_gt", [smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send(smalltalk.send(self, "_id", []), "_asString", [])])]),smalltalk.send("type", "__minus_gt", ["PUT"]),smalltalk.send("data", "__minus_gt", [smalltalk.send(self, "_asJSONString", [])]),smalltalk.send("success", "__minus_gt", [(function(x){return smalltalk.send(self, "_onAfterUpdate_", [x]);})]),smalltalk.send("fail", "__minus_gt", [(function(x){return smalltalk.send(self, "_onUpdateFail_", [x]);})]),smalltalk.send("error", "__minus_gt", [(function(x){return smalltalk.send(self, "_onUpdateFail_", [x]);})])])]);
 return self;},
 args: [],
-source: unescape('update%0A%0A%09jQuery%20ajax%3A%20%23%7B%20%0A%09%09%27url%27%20-%3E%20%28self%20path%2C%20%27/%27%2Cid%20asString%29.%0A%09%09%27type%27%20-%3E%20%27PUT%27.%0A%09%09%27data%27%20-%3E%20self%20asJSONString.%0A%09%09%27success%27%20-%3E%20%5B%3Ax%7C%20self%20onAfterUpdate%3A%20x%5D.%0A%09%09%27fail%27%20-%3E%20%5B%3Ax%7C%20self%20onUpdateFail%3A%20x%5D.%0A%09%09%27error%27%20-%3E%20%5B%3Ax%7C%20self%20onUpdateFail%3A%20x%5D%7D%20%20%0A%0A%0A'),
-messageSends: ["ajax:", unescape("-%3E"), unescape("%2C"), "path", "asString", "asJSONString", "onAfterUpdate:", "onUpdateFail:"],
-referencedClasses: []
+source: unescape('update%0A%0A%09self%20inspect.%0A%09Transcript%20cr%3B%20show%3A%20self%20asJSONString.%0A%0A%09jQuery%20ajax%3A%20%23%7B%20%0A%09%09%27url%27%20-%3E%20%28self%20path%2C%20%27/%27%2Cself%20id%20asString%29.%0A%09%09%27type%27%20-%3E%20%27PUT%27.%0A%09%09%27data%27%20-%3E%20self%20asJSONString.%0A%09%09%27success%27%20-%3E%20%5B%3Ax%7C%20self%20onAfterUpdate%3A%20x%5D.%0A%09%09%27fail%27%20-%3E%20%5B%3Ax%7C%20self%20onUpdateFail%3A%20x%5D.%0A%09%09%27error%27%20-%3E%20%5B%3Ax%7C%20self%20onUpdateFail%3A%20x%5D%7D%20%20%0A%0A%0A'),
+messageSends: ["inspect", "cr", "show:", "asJSONString", "ajax:", unescape("-%3E"), unescape("%2C"), "path", "asString", "id", "onAfterUpdate:", "onUpdateFail:"],
+referencedClasses: ["Transcript"]
 }),
 smalltalk.JsonPersistentModel);
 
@@ -770,11 +772,11 @@ selector: unescape('delete'),
 category: 'actions',
 fn: function (){
 var self=this;
-smalltalk.send((typeof jQuery == 'undefined' ? nil : jQuery), "_ajax_", [smalltalk.HashedCollection._fromPairs_([smalltalk.send("url", "__minus_gt", [smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send((typeof id == 'undefined' ? nil : id), "_asString", [])])]),smalltalk.send("type", "__minus_gt", ["DELETE"]),smalltalk.send("success", "__minus_gt", [(function(x){return smalltalk.send(self, "_onAfterDelete_", [x]);})]),smalltalk.send("fail", "__minus_gt", [(function(x){return smalltalk.send(self, "_onDeleteFail_", [x]);})]),smalltalk.send("error", "__minus_gt", [(function(x){return smalltalk.send(self, "_onDeleteFail_", [x]);})])])]);
+smalltalk.send((typeof jQuery == 'undefined' ? nil : jQuery), "_ajax_", [smalltalk.HashedCollection._fromPairs_([smalltalk.send("url", "__minus_gt", [smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send(smalltalk.send(self, "_id", []), "_asString", [])])]),smalltalk.send("type", "__minus_gt", ["DELETE"]),smalltalk.send("success", "__minus_gt", [(function(x){return smalltalk.send(self, "_onAfterDelete_", [x]);})]),smalltalk.send("fail", "__minus_gt", [(function(x){return smalltalk.send(self, "_onDeleteFail_", [x]);})]),smalltalk.send("error", "__minus_gt", [(function(x){return smalltalk.send(self, "_onDeleteFail_", [x]);})])])]);
 return self;},
 args: [],
-source: unescape('delete%0A%0A%09jQuery%20ajax%3A%20%23%7B%20%0A%09%09%27url%27%20-%3E%20%28self%20path%2C%20%27/%27%2Cid%20asString%29.%0A%09%09%27type%27%20-%3E%20%27DELETE%27.%0A%09%09%27success%27%20-%3E%20%5B%3Ax%7C%20self%20onAfterDelete%3A%20x%5D.%0A%09%09%27fail%27%20-%3E%20%5B%3Ax%7C%20self%20onDeleteFail%3A%20x%5D.%0A%09%09%27error%27%20-%3E%20%5B%3Ax%7C%20self%20onDeleteFail%3A%20x%5D%7D%20%20%0A%0A'),
-messageSends: ["ajax:", unescape("-%3E"), unescape("%2C"), "path", "asString", "onAfterDelete:", "onDeleteFail:"],
+source: unescape('delete%0A%0A%09jQuery%20ajax%3A%20%23%7B%20%0A%09%09%27url%27%20-%3E%20%28self%20path%2C%20%27/%27%2Cself%20id%20asString%29.%0A%09%09%27type%27%20-%3E%20%27DELETE%27.%0A%09%09%27success%27%20-%3E%20%5B%3Ax%7C%20self%20onAfterDelete%3A%20x%5D.%0A%09%09%27fail%27%20-%3E%20%5B%3Ax%7C%20self%20onDeleteFail%3A%20x%5D.%0A%09%09%27error%27%20-%3E%20%5B%3Ax%7C%20self%20onDeleteFail%3A%20x%5D%7D%20%20%0A%0A'),
+messageSends: ["ajax:", unescape("-%3E"), unescape("%2C"), "path", "asString", "id", "onAfterDelete:", "onDeleteFail:"],
 referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
@@ -882,11 +884,11 @@ selector: unescape('refresh'),
 category: 'actions',
 fn: function (){
 var self=this;
-smalltalk.send((typeof jQuery == 'undefined' ? nil : jQuery), "_ajax_", [smalltalk.HashedCollection._fromPairs_([smalltalk.send("url", "__minus_gt", [smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send((typeof id == 'undefined' ? nil : id), "_asString", [])])]),smalltalk.send("type", "__minus_gt", ["GET"]),smalltalk.send("success", "__minus_gt", [(function(x){return smalltalk.send(self, "_onAfterRefresh_", [x]);})]),smalltalk.send("fail", "__minus_gt", [(function(x){return smalltalk.send(self, "_onRefeshFail_", [x]);})]),smalltalk.send("error", "__minus_gt", [(function(x){return smalltalk.send(self, "_onRefreshFail_", [x]);})])])]);
+smalltalk.send((typeof jQuery == 'undefined' ? nil : jQuery), "_ajax_", [smalltalk.HashedCollection._fromPairs_([smalltalk.send("url", "__minus_gt", [smalltalk.send(smalltalk.send(smalltalk.send(self, "_path", []), "__comma", [unescape("/")]), "__comma", [smalltalk.send(smalltalk.send(self, "_id", []), "_asString", [])])]),smalltalk.send("type", "__minus_gt", ["GET"]),smalltalk.send("success", "__minus_gt", [(function(x){return smalltalk.send(self, "_onAfterRefresh_", [x]);})]),smalltalk.send("fail", "__minus_gt", [(function(x){return smalltalk.send(self, "_onRefeshFail_", [x]);})]),smalltalk.send("error", "__minus_gt", [(function(x){return smalltalk.send(self, "_onRefreshFail_", [x]);})])])]);
 return self;},
 args: [],
-source: unescape('refresh%0A%09%22Re-read%20this%20model%27s%20state.%22%0A%0A%09jQuery%20ajax%3A%20%23%7B%20%0A%09%09%27url%27%20-%3E%20%28self%20path%2C%20%27/%27%2Cid%20asString%29.%0A%09%09%27type%27%20-%3E%20%27GET%27.%0A%09%09%27success%27%20-%3E%20%5B%3Ax%7C%20self%20onAfterRefresh%3A%20x%5D.%0A%09%09%27fail%27%20-%3E%20%5B%3Ax%7C%20self%20onRefeshFail%3A%20x%5D.%0A%09%09%27error%27%20-%3E%20%5B%3Ax%7C%20self%20onRefreshFail%3A%20x%5D%7D%09%09'),
-messageSends: ["ajax:", unescape("-%3E"), unescape("%2C"), "path", "asString", "onAfterRefresh:", "onRefeshFail:", "onRefreshFail:"],
+source: unescape('refresh%0A%09%22Re-read%20this%20model%27s%20state.%22%0A%0A%09jQuery%20ajax%3A%20%23%7B%20%0A%09%09%27url%27%20-%3E%20%28self%20path%2C%20%27/%27%2Cself%20id%20asString%29.%0A%09%09%27type%27%20-%3E%20%27GET%27.%0A%09%09%27success%27%20-%3E%20%5B%3Ax%7C%20self%20onAfterRefresh%3A%20x%5D.%0A%09%09%27fail%27%20-%3E%20%5B%3Ax%7C%20self%20onRefeshFail%3A%20x%5D.%0A%09%09%27error%27%20-%3E%20%5B%3Ax%7C%20self%20onRefreshFail%3A%20x%5D%7D%09%09'),
+messageSends: ["ajax:", unescape("-%3E"), unescape("%2C"), "path", "asString", "id", "onAfterRefresh:", "onRefeshFail:", "onRefreshFail:"],
 referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
@@ -963,11 +965,11 @@ selector: unescape('createdOn%3A'),
 category: 'accessing',
 fn: function (aDate){
 var self=this;
-(createdOn=aDate);
+smalltalk.send(self['@data'], "_at_put_", [smalltalk.symbolFor("createdOn"), aDate]);
 return self;},
 args: ["aDate"],
-source: unescape('createdOn%3A%20aDate%0A%0A%09createdOn%20%3A%3D%20aDate'),
-messageSends: [],
+source: unescape('createdOn%3A%20aDate%0A%0A%09data%20at%3A%20%23createdOn%20put%3AaDate'),
+messageSends: ["at:put:"],
 referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
@@ -979,11 +981,11 @@ selector: unescape('createdOn'),
 category: 'accessing',
 fn: function (){
 var self=this;
-return (typeof createdOn == 'undefined' ? nil : createdOn);
+return smalltalk.send(self['@data'], "_at_", [smalltalk.symbolFor("createdOn")]);
 return self;},
 args: [],
-source: unescape('createdOn%0A%0A%09%5E%20createdOn'),
-messageSends: [],
+source: unescape('createdOn%0A%0A%09%5E%20data%20at%3A%20%23createdOn'),
+messageSends: ["at:"],
 referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
@@ -1012,12 +1014,46 @@ selector: unescape('asJSONString'),
 category: 'actions',
 fn: function (){
 var self=this;
+smalltalk.send(self, "_onAboutToJSON", []);
 return smalltalk.send((smalltalk.JSON || JSON), "_stringify_", [self['@data']]);
 return self;},
 args: [],
-source: unescape('asJSONString%0A%0A%09%5E%20JSON%20stringify%3A%20data'),
-messageSends: ["stringify:"],
+source: unescape('asJSONString%0A%0A%09self%20onAboutToJSON.%0A%09%0A%09%5E%20JSON%20stringify%3A%20data'),
+messageSends: ["onAboutToJSON", "stringify:"],
 referencedClasses: ["JSON"]
+}),
+smalltalk.JsonPersistentModel);
+
+smalltalk.addMethod(
+unescape('_data'),
+smalltalk.method({
+selector: unescape('data'),
+category: 'accessing',
+fn: function (){
+var self=this;
+return self['@data'];
+return self;},
+args: [],
+source: unescape('data%0A%0A%09%5E%20data'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.JsonPersistentModel);
+
+smalltalk.addMethod(
+unescape('_onAboutToJSON'),
+smalltalk.method({
+selector: unescape('onAboutToJSON'),
+category: 'reactions',
+fn: function (){
+var self=this;
+var instVars=nil;
+(instVars=smalltalk.send(smalltalk.send(self, "_class", []), "_allInstanceVariableNames", []));
+return self;},
+args: [],
+source: unescape('onAboutToJSON%0A%0A%09%7C%20instVars%20%7C%0A%0A%09instVars%20%3A%3D%20self%20class%20allInstanceVariableNames.%0A%09%22this%20should%20make%20all%20js%20objects%20to%20be%20instanciated%20as%20flow%20persistent%20models%20if%20appropriate.%0A%09hey..%20this%20should%20visit%20this%20on%20depth.%22%0A'),
+messageSends: ["allInstanceVariableNames", "class"],
+referencedClasses: []
 }),
 smalltalk.JsonPersistentModel);
 

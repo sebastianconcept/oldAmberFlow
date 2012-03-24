@@ -1,4 +1,51 @@
 smalltalk.addPackage('Flow-Examples', {});
+smalltalk.addClass('ToDo', smalltalk.PersistentModel, ['name', 'description'], 'Flow-Examples');
+smalltalk.addMethod(
+unescape('_name'),
+smalltalk.method({
+selector: unescape('name'),
+fn: function (){
+var self=this;
+return self['@name'];
+return self;}
+}),
+smalltalk.ToDo);
+
+smalltalk.addMethod(
+unescape('_description'),
+smalltalk.method({
+selector: unescape('description'),
+fn: function (){
+var self=this;
+return self['@description'];
+return self;}
+}),
+smalltalk.ToDo);
+
+smalltalk.addMethod(
+unescape('_description_'),
+smalltalk.method({
+selector: unescape('description%3A'),
+fn: function (aString){
+var self=this;
+(self['@description']=aString);
+return self;}
+}),
+smalltalk.ToDo);
+
+smalltalk.addMethod(
+unescape('_name_'),
+smalltalk.method({
+selector: unescape('name%3A'),
+fn: function (aString){
+var self=this;
+(self['@name']=aString);
+return self;}
+}),
+smalltalk.ToDo);
+
+
+
 smalltalk.addClass('ToDoList', smalltalk.PersistentModel, ['toDos'], 'Flow-Examples');
 smalltalk.addMethod(
 unescape('_toDos'),
@@ -66,52 +113,5 @@ smalltalk.send((smalltalk.ToDo || ToDo), "_reifyFrom_", [aReifiedJSON]);
 return self;}
 }),
 smalltalk.ToDoList.klass);
-
-
-smalltalk.addClass('ToDo', smalltalk.PersistentModel, ['name', 'description'], 'Flow-Examples');
-smalltalk.addMethod(
-unescape('_name'),
-smalltalk.method({
-selector: unescape('name'),
-fn: function (){
-var self=this;
-return self['@name'];
-return self;}
-}),
-smalltalk.ToDo);
-
-smalltalk.addMethod(
-unescape('_description'),
-smalltalk.method({
-selector: unescape('description'),
-fn: function (){
-var self=this;
-return self['@description'];
-return self;}
-}),
-smalltalk.ToDo);
-
-smalltalk.addMethod(
-unescape('_description_'),
-smalltalk.method({
-selector: unescape('description%3A'),
-fn: function (aString){
-var self=this;
-(self['@description']=aString);
-return self;}
-}),
-smalltalk.ToDo);
-
-smalltalk.addMethod(
-unescape('_name_'),
-smalltalk.method({
-selector: unescape('name%3A'),
-fn: function (aString){
-var self=this;
-(self['@name']=aString);
-return self;}
-}),
-smalltalk.ToDo);
-
 
 

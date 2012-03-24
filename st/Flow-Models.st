@@ -345,17 +345,17 @@ Model subclass: #JsonPersistentModel
 
 id: aString
 
-	data id: aString
+	data at: #id put: aString
 !
 
 id
 
-	^ data id
+	^ data at: #id
 !
 
 url
 
-	^ self path,'/',id asString
+	^ self path,'/',self id asString
 !
 
 path 
@@ -365,20 +365,28 @@ path
 
 createdOn: aDate
 
-	createdOn := aDate
+	data at: #createdOn put:aDate
 !
 
 createdOn
 
-	^ createdOn
+	^ data at: #createdOn
+!
+
+data
+
+	^ data
 ! !
 
 !JsonPersistentModel methodsFor: 'actions'!
 
 update
 
+	self inspect.
+	Transcript cr; show: self asJSONString.
+
 	jQuery ajax: #{ 
-		'url' -> (self path, '/',id asString).
+		'url' -> (self path, '/',self id asString).
 		'type' -> 'PUT'.
 		'data' -> self asJSONString.
 		'success' -> [:x| self onAfterUpdate: x].
@@ -389,7 +397,7 @@ update
 delete
 
 	jQuery ajax: #{ 
-		'url' -> (self path, '/',id asString).
+		'url' -> (self path, '/',self id asString).
 		'type' -> 'DELETE'.
 		'success' -> [:x| self onAfterDelete: x].
 		'fail' -> [:x| self onDeleteFail: x].
@@ -407,7 +415,7 @@ refresh
 	"Re-read this model's state."
 
 	jQuery ajax: #{ 
-		'url' -> (self path, '/',id asString).
+		'url' -> (self path, '/',self id asString).
 		'type' -> 'GET'.
 		'success' -> [:x| self onAfterRefresh: x].
 		'fail' -> [:x| self onRefeshFail: x].
@@ -425,6 +433,8 @@ syncFrom: someJson
 
 asJSONString
 
+	self onAboutToJSON.
+	
 	^ JSON stringify: data
 ! !
 
@@ -475,6 +485,15 @@ onAfterRefresh: x
 
 	self syncWith: (self class reify: x).
 	self announce: (ModelRefreshed for: self)
+!
+
+onAboutToJSON
+
+	| instVars |
+
+	instVars := self class allInstanceVariableNames.
+	"this should make all js objects to be instanciated as flow persistent models if appropriate.
+	hey.. this should visit this on depth."
 ! !
 
 !JsonPersistentModel class methodsFor: 'accessing'!

@@ -406,7 +406,7 @@ items: someModels
 
 itemsGetter
 
-	^ itemsGetter
+	^ itemsGetter ifNil:[self initializeItemsGetter]
 !
 
 itemsGetter: aBlock
@@ -487,7 +487,7 @@ makeLoader
 loadItemsDo: aBlock
 	"Loads the items form the getter block and evaluates passing the reaction aBlock to it."
 
-	self getItemsDo: aBlock
+	^ self itemsGetter value: aBlock
 !
 
 itemsDo: aBlock
@@ -499,10 +499,19 @@ itemsDo: aBlock
 !
 
 getItemsDo: aBlock
-	"Brings the whole bunch of fresh items from the itemGetter.
-	Pass aBlock to the itemsGetter so it gets evaluated when finished."
+	"Returns the collection of items that should be presented by this presenter.
+	Evaluates the onDone reaction when the answer arrives."
 
-	^ itemsGetter value: aBlock
+	"You can use this idea in your concrete ItemsPresenter subclass:
+
+	jQuery ajax: #{ 
+		'url' -> ('api/Blah/find?whatever=thing&you=needToDo').
+		'type' -> 'GET'.
+		'success' -> [:x| self onAfterLoad: x do: onDone].
+		'fail' -> [:x| GettingItemsError signal: 'Cannot get the Blah kind of items: ', x responseText].
+		'error' -> [:x| GettingItemsError signal: 'Cannot get the Blah kind of items: ', x responseText]}"  
+
+	^ self subclassResponsibility
 !
 
 showLoader
@@ -516,11 +525,22 @@ hideLoader
 !
 
 refresh
-
-	items ifNil:[^self].
+	
+	self isLoaded ifFalse:[^self].
 
 	self reset.
 	self loadAndPaintOn: self newCanvas
+!
+
+makeItemsGetter
+
+	^ [:onDone| self getItemsDo: onDone]
+!
+
+makeItemsFromJson: someJson
+	"Answers the collection of items reified from someJson."
+
+	self subclassResponsibility
 ! !
 
 !ItemsPresenter methodsFor: 'initializing'!
@@ -528,6 +548,10 @@ refresh
 initializeLoader
 
 	^ loader := self makeLoader
+!
+
+initializeItemsGetter
+	^ itemsGetter := self makeItemsGetter
 ! !
 
 !ItemsPresenter methodsFor: 'painting'!
@@ -551,8 +575,8 @@ loadAndPaintOn: html
 	self onAboutToLoad.
 
 	self itemsDo:[
-		self onAfterLoaded.
-		self paintItemsOn: html]
+		self paintItemsOn: html.
+		self onAfterLoaded]
 ! !
 
 !ItemsPresenter methodsFor: 'reactions'!
@@ -573,6 +597,13 @@ onAfterLoaded
 	self hideLoader.
 	
 	self announce: ItemsLoaded new.
+!
+
+onAfterLoad: someJson do: onDone
+
+	items := self makeItemsFromJson: someJson.
+
+	onDone value
 ! !
 
 !ItemsPresenter methodsFor: 'testing'!
@@ -581,5 +612,215 @@ hasItems
 
 	^ items notNil and:[
 	items notEmpty]
+!
+
+isLoaded
+
+	^ items notNil
+! !
+
+ItemsPresenter subclass: #BunchPresenter
+	instanceVariableNames: 'bunchSize index atEnd lastItems more'
+	category: 'Flow-Presenters'!
+!BunchPresenter commentStamp!
+This preseter is specialized in presenting items that are loaded in bunches.
+The intention is to fragment the quantity of items to present at one time so the experience gets improved.
+
+Subpresenters of BunchPresenter can do things like painting 20 tweets at the time, query for another 20 tweets, so on and so forth!
+
+!BunchPresenter methodsFor: 'accessing'!
+
+bunchSize
+
+	^ bunchSize ifNil:[self initializeBunchSize]
+!
+
+bunchSize: anInteger
+
+	bunchSize := anInteger
+!
+
+index
+
+	^ index ifNil:[self initializeIndex]
+!
+
+index: anInteger
+
+	index := anInteger
+!
+
+start
+
+	^ ((self index -1) * self bunchSize) +1
+!
+
+end
+
+	^ self index * self bunchSize
+!
+
+nextBunch
+
+	^ self index: self index + 1
+!
+
+items
+
+	^ items ifNil:[self initializeItems]
+!
+
+more
+
+	^ more ifNil:[self initializeMore]
+! !
+
+!BunchPresenter methodsFor: 'actions'!
+
+getItemsDo: aBlock
+	"Returns the collection of items that should be presented by this presenter.
+	Evaluates the onDone reaction when the answer arrives."
+
+	"You can use this idea in your concrete ItemsPresenter subclass:
+
+	jQuery ajax: #{ 
+		'url' -> ('api/Blah/find?whatever=thing&from=',self start asString,'&to=',self end asString).
+		'type' -> 'GET'.
+		'success' -> [:x| self onAfterLoad: x do: onDone].
+		'fail' -> [:x| GettingItemsError signal: 'Cannot get the Blah kind of items: ', x responseText].
+		'error' -> [:x| GettingItemsError signal: 'Cannot get the Blah kind of items: ', x responseText]}"  
+
+	^ self subclassResponsibility
+!
+
+reset
+
+	super reset.
+
+	index := nil.
+	atEnd := false
+!
+
+addItems: someItems
+
+	self items addAll: someItems
+!
+
+removeItems: someItems
+
+	self items removeAll: someItems
+!
+
+showNext
+
+	| html|
+	html := self newCanvas.
+	self nextBunch.
+	self loadAndPaintOn: html
+!
+
+itemsDo: aBlock
+	"Performs aBlock either after loading the items or when it already have them."
+
+	self loadItemsDo: aBlock
+!
+
+showLoader
+
+	self loader asJQuery hide fadeIn
+!
+
+makeMore
+	"Makes the button that should load more items."
+
+	self subclassResponsibility
+
+	" use this as an idea
+
+	^(self newCanvasOn: '#ThisPresenter' asJQuery) a
+		id: 'SeeMoreItems';
+		onClick:[self onMore];
+		with: 'More items...';	
+		yourself"
+!
+
+showMore
+
+	self more asJQuery hide fadeIn
+! !
+
+!BunchPresenter methodsFor: 'initialization'!
+
+initializeIndex
+
+	^ index := 1
+!
+
+initializeBunchSize
+
+	^ bunchSize := self class defaultBunchSize
+!
+
+initialize
+
+	super initialize.
+
+	atEnd := false
+!
+
+initializeItems
+
+	^ items := Array new
+!
+
+initializeMore
+
+	^ more := self makeMore
+! !
+
+!BunchPresenter methodsFor: 'painting'!
+
+paintItemsOn: html
+
+	lastItems do:[:item|
+		self paint: (self presenterFor: item)].
+! !
+
+!BunchPresenter methodsFor: 'reactions'!
+
+onAfterLoad: someJson do: onDone
+
+	lastItems := self makeItemsFromJson: someJson.
+	self addItems: lastItems.
+	self bunchSize > lastItems size ifTrue:[
+		atEnd := true].
+
+	onDone value
+!
+
+onAfterLoaded
+
+	super onAfterLoaded.
+
+	"Once the items are loaded, move the loader to the bottom."
+	self wrapper asJQuery append: self loader asJQuery.
+! !
+
+!BunchPresenter methodsFor: 'testing'!
+
+atEnd
+	"Answers true if there isn't any other items to load."
+	^ atEnd
+! !
+
+!BunchPresenter class methodsFor: 'not yet classified'!
+
+defaultBunchSize
+	"Not even geniuses can pay attention to about 
+	3 or 4 things at the same time, so 7 sounds like more than enough.
+	Of course you can override. Every application should do what it has to do 
+	in order to provide the best user experience."
+
+	^ 7
 ! !
 

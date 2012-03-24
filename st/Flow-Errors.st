@@ -39,3 +39,7 @@ FlowError subclass: #GettingItemsError
 	instanceVariableNames: ''
 	category: 'Flow-Errors'!
 
+FlowError subclass: #ModelMetadataError
+	instanceVariableNames: ''
+	category: 'Flow-Errors'!
+
