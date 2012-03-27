@@ -43,3 +43,7 @@ FlowError subclass: #ModelMetadataError
 	instanceVariableNames: ''
 	category: 'Flow-Errors'!
 
+FlowError subclass: #ModelGetterIsMissing
+	instanceVariableNames: ''
+	category: 'Flow-Errors'!
+

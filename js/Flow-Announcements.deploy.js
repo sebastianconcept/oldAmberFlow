@@ -87,3 +87,61 @@ smalltalk.addClass('ModelRefreshed', smalltalk.Announcement, [], 'Flow-Announcem
 smalltalk.addClass('ItemsLoaded', smalltalk.Announcement, [], 'Flow-Announcements');
 
 
+smalltalk.addClass('FeedbackRequest', smalltalk.Announcement, ['polarity'], 'Flow-Announcements');
+smalltalk.addMethod(
+unescape('_beNeutral'),
+smalltalk.method({
+selector: unescape('beNeutral'),
+fn: function (){
+var self=this;
+(self['@polarity']="neutral");
+return self;}
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_bePositive'),
+smalltalk.method({
+selector: unescape('bePositive'),
+fn: function (){
+var self=this;
+(self['@polarity']="positive");
+return self;}
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_beNegative'),
+smalltalk.method({
+selector: unescape('beNegative'),
+fn: function (){
+var self=this;
+(self['@polarity']="negative");
+return self;}
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_polarity'),
+smalltalk.method({
+selector: unescape('polarity'),
+fn: function (){
+var self=this;
+return self['@polarity'];
+return self;}
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_polarity_'),
+smalltalk.method({
+selector: unescape('polarity%3A'),
+fn: function (aString){
+var self=this;
+(self['@polarity']=aString);
+return self;}
+}),
+smalltalk.FeedbackRequest);
+
+
+

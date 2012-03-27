@@ -32,3 +32,6 @@ smalltalk.addClass('GettingItemsError', smalltalk.FlowError, [], 'Flow-Errors');
 smalltalk.addClass('ModelMetadataError', smalltalk.FlowError, [], 'Flow-Errors');
 
 
+smalltalk.addClass('ModelGetterIsMissing', smalltalk.FlowError, [], 'Flow-Errors');
+
+

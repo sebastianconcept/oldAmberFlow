@@ -365,43 +365,72 @@ path
 
 createdOn: aDate
 
-	data at: #createdOn put:aDate
+	self at: #createdOn put: aDate
 !
 
-createdOn
+createdOn 
 
-	^ data at: #createdOn
+	| selector expects object|
+
+	selector := #createdOn.
+	expects := Date.
+
+	object := self at: selector asString.
+	object ifNil:[^nil].
+
+	(object isKindOf: expects) ifTrue:[^object].
+
+	^ self at: selector asString put: (self dateAndTimeAt: selector).
 !
 
 data
 
 	^ data
+!
+
+subModelAt: aSelector
+	"Answers the reified submodel (instantiating if necessary)."
+	
+	| subModelData modelClass |
+
+	subModelData := data at: aSelector.
+	subModelData ifNil:[^nil].
+	
+	modelClass := subModelData at: 'class'.
+	modelClass := Smalltalk current at: modelClass.
+
+	modelClass ifNil:[^ModelMetadataError signal: 'Cannot find ',aSelector asString,'''s class for this metadata'].
+	
+	^ modelClass fromReified: subModelData
+!
+
+at: aKey
+
+	^ data at: aKey
+!
+
+at: aKey put: anObject
+
+	data at: aKey put: anObject.
+
+	^ anObject
+!
+
+dateAndTimeAt: aSelector
+
+	^ Date fromString: (self at: aSelector)
 ! !
 
 !JsonPersistentModel methodsFor: 'actions'!
 
 update
 
-	self inspect.
-	Transcript cr; show: self asJSONString.
-
-	jQuery ajax: #{ 
-		'url' -> (self path, '/',self id asString).
-		'type' -> 'PUT'.
-		'data' -> self asJSONString.
-		'success' -> [:x| self onAfterUpdate: x].
-		'fail' -> [:x| self onUpdateFail: x].
-		'error' -> [:x| self onUpdateFail: x]}
+	self updateDo: [nil]
 !
 
 delete
 
-	jQuery ajax: #{ 
-		'url' -> (self path, '/',self id asString).
-		'type' -> 'DELETE'.
-		'success' -> [:x| self onAfterDelete: x].
-		'fail' -> [:x| self onDeleteFail: x].
-		'error' -> [:x| self onDeleteFail: x]}
+	self deleteDo:[nil]
 !
 
 syncWith: aReifiedJSON
@@ -414,16 +443,11 @@ syncWith: aReifiedJSON
 refresh
 	"Re-read this model's state."
 
-	jQuery ajax: #{ 
-		'url' -> (self path, '/',self id asString).
-		'type' -> 'GET'.
-		'success' -> [:x| self onAfterRefresh: x].
-		'fail' -> [:x| self onRefeshFail: x].
-		'error' -> [:x| self onRefreshFail: x]}
+	self refreshDo:[nil]
 !
 
 save
-	^ self update
+	^ self saveDo:[nil]
 !
 
 syncFrom: someJson
@@ -434,8 +458,63 @@ syncFrom: someJson
 asJSONString
 
 	self onAboutToJSON.
-	
+
 	^ JSON stringify: data
+!
+
+doesNotUnderstand: aMessage
+	"The idea behind this DNU is to use the selector as setters or getter 
+	delegating to data (aJsonObject)"
+	
+	| key |
+
+
+	key := aMessage selector asSymbol.
+
+	key isUnary ifTrue: [
+		^ data at: key asString].
+
+	^ (key isKeyword and: [
+	(key asString occurrencesOf: ':') = 1])
+		ifTrue: [key := key allButLast.
+				data at: key asString put: aMessage arguments first]
+		ifFalse: [super doesNotUnderstand: aMessage]
+!
+
+deleteDo: aBlock
+
+	jQuery ajax: #{ 
+		'url' -> (self path, '/',self id asString).
+		'type' -> 'DELETE'.
+		'success' -> [:x| self onAfterDelete: x done: aBlock].
+		'fail' -> [:x| self onDeleteFail: x].
+		'error' -> [:x| self onDeleteFail: x]}
+!
+
+refreshDo: aBlock
+	"Re-read this model's state."
+
+	jQuery ajax: #{ 
+		'url' -> (self path, '/',self id asString).
+		'type' -> 'GET'.
+		'success' -> [:x| self onAfterRefresh: x done: aBlock].
+		'fail' -> [:x| self onRefeshFail: x].
+		'error' -> [:x| self onRefreshFail: x]}
+!
+
+saveDo: aBlock
+	^ self updateDo: aBlock
+!
+
+updateDo: aBlock
+
+	jQuery ajax: #{ 
+		'url' -> (self path, '/',self id asString).
+		'type' -> 'PUT'.
+		'data' -> self asJSONString.
+		'success' -> [:x| self onAfterUpdate: x done: aBlock].
+		'fail' -> [:x| self onUpdateFail: x].
+		'error' -> [:x| self onUpdateFail: x]}
 ! !
 
 !JsonPersistentModel methodsFor: 'initialization'!
@@ -449,18 +528,6 @@ initialize
 
 !JsonPersistentModel methodsFor: 'reactions'!
 
-onAfterCreate: x
-
-	data := self class reify: x.
-
-	self announce: (ModelCreated for: self)
-!
-
-onAfterUpdate: x
-	
-	self announce: (ModelUpdated for: self)
-!
-
 onUpdateFail: x
 
 	ModelUpdateError signal: 'Could not update ', self class name
@@ -471,29 +538,55 @@ onDeleteFail: x
 	ModelUpdateError signal: 'Could not delete ', self class name
 !
 
-onAfterDelete: x
-	
-	self announce: (ModelDeleted for: self)
-!
-
 onRefreshFail: x
 
 	ModelRefreshError signal: 'Could not refresh ', self class name
 !
 
-onAfterRefresh: x
+onAboutToJSON
+	"This model is about to be stringified in JSON.
+	All inst var values that are expected to be model objects, need to be instanciated as expected."
 
-	self syncWith: (self class reify: x).
-	self announce: (ModelRefreshed for: self)
+	data keys do:[:key| |value|
+		value := data at: key.
+		"Transcript cr; show: self class name,'>>onAboutToJSON  -> ', key asString, ' -> ', value printString."
+
+		"If the value is a js object proxy, we assume it's the data for a (composed) flow model, 
+		so we call the getter in this receiver expecting to get it properly instantiated (because that's our convention here)."
+		(value isKindOf: JSObjectProxy) ifTrue:[
+			(self respondsTo: key) ifFalse:[ModelGetterIsMissing signal: 'Cannot find getter for: ', key].
+			value := self perform: key asSymbol.
+			value onAboutToJSON.
+			data at: key put: value]].
 !
 
-onAboutToJSON
+onAfterCreate: x done: aBlock
 
-	| instVars |
+	data := self class reify: x.
 
-	instVars := self class allInstanceVariableNames.
-	"this should make all js objects to be instanciated as flow persistent models if appropriate.
-	hey.. this should visit this on depth."
+	self announce: (ModelCreated for: self).
+	aBlock value: self
+!
+
+onAfterRefresh: x done: aBlock
+
+	self syncWith: (self class reify: x).
+	self announce: (ModelRefreshed for: self).
+	aBlock value: self
+!
+
+onAfterDelete: x done: aBlock
+	
+	self announce: (ModelDeleted for: self).
+
+	aBlock value: self
+!
+
+onAfterUpdate: x done: aBlock
+	
+	self announce: (ModelUpdated for: self).
+
+	aBlock value: self
 ! !
 
 !JsonPersistentModel class methodsFor: 'accessing'!
@@ -501,35 +594,19 @@ onAboutToJSON
 atId: anId
 	"Answers the instance of this model found at anId (or nil)"
  
-	^ self read: anId
+	^ self read: anId do: [nil]
 ! !
 
 !JsonPersistentModel class methodsFor: 'actions'!
 
 read: anId
 
-	jQuery ajax: #{ 
-		'url' -> (self path, '/',anId).
-		'type' -> 'GET'.
-		'sucess' -> [:x| self onAfterRead: x].
-		'fail' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText].
-		'error' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText]}
+	self read: anId do: [nil]
 !
 
 create
 
-	| newInstance |
-
-	newInstance := self basicNew initialize.
-
-	jQuery ajax: #{ 
-		'url' -> self path.
-		'type' -> 'POST'.
-		'success' -> [:x| newInstance onAfterCreate: x].
-		'fail' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText].
-		'error' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText]}.
-
-	^ newInstance
+	^ self createDo: [nil]
 !
 
 reify: someJson
@@ -562,12 +639,40 @@ manyFromJson: someJson
 
 	^ (JSON parse: someJson) collect:[:each|
 		 self fromReified: each ]
+!
+
+createDo: aBlock
+
+	| newInstance |
+
+	newInstance := self basicNew initialize.
+
+	jQuery ajax: #{ 
+		'url' -> self path.
+		'type' -> 'POST'.
+		'success' -> [:x| newInstance onAfterCreate: x done: aBlock].
+		'fail' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText].
+		'error' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText]}.
+
+	^ newInstance
+!
+
+read: anId do: aBlock
+
+	jQuery ajax: #{ 
+		'url' -> (self path, '/',anId).
+		'type' -> 'GET'.
+		'sucess' -> [:x| self onAfterRead: x done: aBlock].
+		'fail' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText].
+		'error' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText]}
 ! !
 
 !JsonPersistentModel class methodsFor: 'reactions'!
 
-onAfterRead: someJson
+onAfterRead: someJson done: aBlock
 
-	^ self reify: someJson
+	self reify: someJson.
+	aBlock value: self.
+	^ self
 ! !
 

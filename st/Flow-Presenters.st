@@ -245,6 +245,26 @@ remove: aPresenter
 removeAll
 
 	self subPresenters do:[:e| self remove: e]
+!
+
+feedbackText: aString
+
+	self neutralFeedbackText: aString
+!
+
+positiveFeedbackText: aString
+
+	self announce: (FeedbackRequest for: aString) bePositive
+!
+
+negativeFeedbackText: aString
+
+	self announce: (FeedbackRequest for: aString) beNegative
+!
+
+neutralFeedbackText: aString
+
+	self announce: (FeedbackRequest for: aString) beNeutral
 ! !
 
 !Presenter methodsFor: 'initialization'!
@@ -822,5 +842,161 @@ defaultBunchSize
 	in order to provide the best user experience."
 
 	^ 7
+! !
+
+Presenter subclass: #Application
+	instanceVariableNames: 'feedback'
+	category: 'Flow-Presenters'!
+
+!Application methodsFor: 'accessing'!
+
+feedback
+	^ feedback ifNil:[self initializeFeedback]
+!
+
+feedbackText: aString
+
+	self feedback text: aString
+!
+
+negativeFeedbackText: aString
+
+	self feedback beNegative; text: aString
+!
+
+positiveFeedbackText: aString
+
+	self feedback bePositive; text: aString
+!
+
+neutralFeedbackText: aString
+
+	self feedback beNeutral; text: aString
+! !
+
+!Application methodsFor: 'actions'!
+
+makeFeedback
+
+	^ Feedback new
+! !
+
+!Application methodsFor: 'initialization'!
+
+initializeFeedback
+	^ feedback := self makeFeedback
+! !
+
+!Application methodsFor: 'reactions'!
+
+onFeedback: anAnnouncement
+
+	| polarity |
+
+	polarity := anAnnouncement polarity.
+	self perform: (polarity, 'FeedbackText:') withArguments: (Array with: anAnnouncement subject)
+! !
+
+Presenter subclass: #Feedback
+	instanceVariableNames: 'content text'
+	category: 'Flow-Presenters'!
+
+!Feedback methodsFor: 'accessing'!
+
+text
+
+	^ text
+! !
+
+!Feedback methodsFor: 'actions'!
+
+text: aString
+
+	text := aString.
+	self refresh.
+	self show
+!
+
+refresh
+
+	content asJQuery html: text
+!
+
+show
+
+	wrapper asJQuery slideDown: 500; fadeIn: 500 do:[
+		window setTimeout: [wrapper asJQuery slideUp: 500; fadeOut: 500] delay: 3000]
+!
+
+beNegative
+
+	self removePolarity.
+	'#feedbackWrapper' asJQuery addClass: 'negativeFeedback'
+!
+
+beNeutral
+
+	self removePolarity.
+	'#feedbackWrapper' asJQuery addClass: 'neutralFeedback'
+!
+
+bePositive
+
+	self removePolarity.
+	'#feedbackWrapper' asJQuery addClass: 'positiveFeedback'
+!
+
+removePolarity
+
+	#('neutralFeedback' 'neutralFeedback' 'neutralFeedback') do:[:cssClass|
+		wrapper asJQuery removeClass: cssClass]
+! !
+
+!Feedback methodsFor: 'initialization'!
+
+initialize
+
+	super initialize.
+
+	text := String new.
+! !
+
+!Feedback methodsFor: 'paint'!
+
+paintOn: html
+	
+	wrapper id: 'feedback'.
+	wrapper asJQuery hide.
+
+	html div
+		id: 'feedbackWrapper';
+		with:[
+			html div
+				id:'feedbackContent';
+				with:[
+					self paintContentOn: html.
+					self paintButtonOn: html]]
+!
+
+paintButtonOn: html
+
+	html button
+		id: 'feedbackClose';
+		with: 'Close';
+		onClick:[self onClose]
+!
+
+paintContentOn: html
+
+	content := html div
+				id: 'feedbackContentWrapper';
+				yourself
+! !
+
+!Feedback methodsFor: 'reactions'!
+
+onClose
+
+	self hide
 ! !
 

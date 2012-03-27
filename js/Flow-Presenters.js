@@ -838,6 +838,70 @@ referencedClasses: []
 }),
 smalltalk.Presenter);
 
+smalltalk.addMethod(
+unescape('_feedbackText_'),
+smalltalk.method({
+selector: unescape('feedbackText%3A'),
+category: 'actions',
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_neutralFeedbackText_", [aString]);
+return self;},
+args: ["aString"],
+source: unescape('feedbackText%3A%20aString%0A%0A%09self%20neutralFeedbackText%3A%20aString'),
+messageSends: ["neutralFeedbackText:"],
+referencedClasses: []
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_positiveFeedbackText_'),
+smalltalk.method({
+selector: unescape('positiveFeedbackText%3A'),
+category: 'actions',
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_announce_", [smalltalk.send(smalltalk.send((smalltalk.FeedbackRequest || FeedbackRequest), "_for_", [aString]), "_bePositive", [])]);
+return self;},
+args: ["aString"],
+source: unescape('positiveFeedbackText%3A%20aString%0A%0A%09self%20announce%3A%20%28FeedbackRequest%20for%3A%20aString%29%20bePositive'),
+messageSends: ["announce:", "bePositive", "for:"],
+referencedClasses: ["FeedbackRequest"]
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_negativeFeedbackText_'),
+smalltalk.method({
+selector: unescape('negativeFeedbackText%3A'),
+category: 'actions',
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_announce_", [smalltalk.send(smalltalk.send((smalltalk.FeedbackRequest || FeedbackRequest), "_for_", [aString]), "_beNegative", [])]);
+return self;},
+args: ["aString"],
+source: unescape('negativeFeedbackText%3A%20aString%0A%0A%09self%20announce%3A%20%28FeedbackRequest%20for%3A%20aString%29%20beNegative'),
+messageSends: ["announce:", "beNegative", "for:"],
+referencedClasses: ["FeedbackRequest"]
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_neutralFeedbackText_'),
+smalltalk.method({
+selector: unescape('neutralFeedbackText%3A'),
+category: 'actions',
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_announce_", [smalltalk.send(smalltalk.send((smalltalk.FeedbackRequest || FeedbackRequest), "_for_", [aString]), "_beNeutral", [])]);
+return self;},
+args: ["aString"],
+source: unescape('neutralFeedbackText%3A%20aString%0A%0A%09self%20announce%3A%20%28FeedbackRequest%20for%3A%20aString%29%20beNeutral'),
+messageSends: ["announce:", "beNeutral", "for:"],
+referencedClasses: ["FeedbackRequest"]
+}),
+smalltalk.Presenter);
+
 
 smalltalk.addMethod(
 unescape('_for_'),
@@ -1860,5 +1924,357 @@ messageSends: [],
 referencedClasses: []
 }),
 smalltalk.BunchPresenter.klass);
+
+
+smalltalk.addClass('Application', smalltalk.Presenter, ['feedback'], 'Flow-Presenters');
+smalltalk.addMethod(
+unescape('_feedback'),
+smalltalk.method({
+selector: unescape('feedback'),
+category: 'accessing',
+fn: function (){
+var self=this;
+return (($receiver = self['@feedback']) == nil || $receiver == undefined) ? (function(){return smalltalk.send(self, "_initializeFeedback", []);})() : $receiver;
+return self;},
+args: [],
+source: unescape('feedback%0A%09%5E%20feedback%20ifNil%3A%5Bself%20initializeFeedback%5D'),
+messageSends: ["ifNil:", "initializeFeedback"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_initializeFeedback'),
+smalltalk.method({
+selector: unescape('initializeFeedback'),
+category: 'initialization',
+fn: function (){
+var self=this;
+return (self['@feedback']=smalltalk.send(self, "_makeFeedback", []));
+return self;},
+args: [],
+source: unescape('initializeFeedback%0A%09%5E%20feedback%20%3A%3D%20self%20makeFeedback'),
+messageSends: ["makeFeedback"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_makeFeedback'),
+smalltalk.method({
+selector: unescape('makeFeedback'),
+category: 'actions',
+fn: function (){
+var self=this;
+return smalltalk.send((smalltalk.Feedback || Feedback), "_new", []);
+return self;},
+args: [],
+source: unescape('makeFeedback%0A%0A%09%5E%20Feedback%20new'),
+messageSends: ["new"],
+referencedClasses: ["Feedback"]
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_feedbackText_'),
+smalltalk.method({
+selector: unescape('feedbackText%3A'),
+category: 'accessing',
+fn: function (aString){
+var self=this;
+smalltalk.send(smalltalk.send(self, "_feedback", []), "_text_", [aString]);
+return self;},
+args: ["aString"],
+source: unescape('feedbackText%3A%20aString%0A%0A%09self%20feedback%20text%3A%20aString'),
+messageSends: ["text:", "feedback"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_negativeFeedbackText_'),
+smalltalk.method({
+selector: unescape('negativeFeedbackText%3A'),
+category: 'accessing',
+fn: function (aString){
+var self=this;
+(function($rec){smalltalk.send($rec, "_beNegative", []);return smalltalk.send($rec, "_text_", [aString]);})(smalltalk.send(self, "_feedback", []));
+return self;},
+args: ["aString"],
+source: unescape('negativeFeedbackText%3A%20aString%0A%0A%09self%20feedback%20beNegative%3B%20text%3A%20aString'),
+messageSends: ["beNegative", "text:", "feedback"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_positiveFeedbackText_'),
+smalltalk.method({
+selector: unescape('positiveFeedbackText%3A'),
+category: 'accessing',
+fn: function (aString){
+var self=this;
+(function($rec){smalltalk.send($rec, "_bePositive", []);return smalltalk.send($rec, "_text_", [aString]);})(smalltalk.send(self, "_feedback", []));
+return self;},
+args: ["aString"],
+source: unescape('positiveFeedbackText%3A%20aString%0A%0A%09self%20feedback%20bePositive%3B%20text%3A%20aString'),
+messageSends: ["bePositive", "text:", "feedback"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_neutralFeedbackText_'),
+smalltalk.method({
+selector: unescape('neutralFeedbackText%3A'),
+category: 'accessing',
+fn: function (aString){
+var self=this;
+(function($rec){smalltalk.send($rec, "_beNeutral", []);return smalltalk.send($rec, "_text_", [aString]);})(smalltalk.send(self, "_feedback", []));
+return self;},
+args: ["aString"],
+source: unescape('neutralFeedbackText%3A%20aString%0A%0A%09self%20feedback%20beNeutral%3B%20text%3A%20aString'),
+messageSends: ["beNeutral", "text:", "feedback"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_onFeedback_'),
+smalltalk.method({
+selector: unescape('onFeedback%3A'),
+category: 'reactions',
+fn: function (anAnnouncement){
+var self=this;
+var polarity=nil;
+(polarity=smalltalk.send(anAnnouncement, "_polarity", []));
+smalltalk.send(self, "_perform_withArguments_", [smalltalk.send(polarity, "__comma", ["FeedbackText:"]), smalltalk.send((smalltalk.Array || Array), "_with_", [smalltalk.send(anAnnouncement, "_subject", [])])]);
+return self;},
+args: ["anAnnouncement"],
+source: unescape('onFeedback%3A%20anAnnouncement%0A%0A%09%7C%20polarity%20%7C%0A%0A%09polarity%20%3A%3D%20anAnnouncement%20polarity.%0A%09self%20perform%3A%20%28polarity%2C%20%27FeedbackText%3A%27%29%20withArguments%3A%20%28Array%20with%3A%20anAnnouncement%20subject%29%0A%0A%09'),
+messageSends: ["polarity", "perform:withArguments:", unescape("%2C"), "with:", "subject"],
+referencedClasses: ["Array"]
+}),
+smalltalk.Application);
+
+
+
+smalltalk.addClass('Feedback', smalltalk.Presenter, ['content', 'text'], 'Flow-Presenters');
+smalltalk.addMethod(
+unescape('_paintOn_'),
+smalltalk.method({
+selector: unescape('paintOn%3A'),
+category: 'paint',
+fn: function (html){
+var self=this;
+smalltalk.send(self['@wrapper'], "_id_", ["feedback"]);
+smalltalk.send(smalltalk.send(self['@wrapper'], "_asJQuery", []), "_hide", []);
+(function($rec){smalltalk.send($rec, "_id_", ["feedbackWrapper"]);return smalltalk.send($rec, "_with_", [(function(){return (function($rec){smalltalk.send($rec, "_id_", ["feedbackContent"]);return smalltalk.send($rec, "_with_", [(function(){smalltalk.send(self, "_paintContentOn_", [html]);return smalltalk.send(self, "_paintButtonOn_", [html]);})]);})(smalltalk.send(html, "_div", []));})]);})(smalltalk.send(html, "_div", []));
+return self;},
+args: ["html"],
+source: unescape('paintOn%3A%20html%0A%09%0A%09wrapper%20id%3A%20%27feedback%27.%0A%09wrapper%20asJQuery%20hide.%0A%0A%09html%20div%0A%09%09id%3A%20%27feedbackWrapper%27%3B%0A%09%09with%3A%5B%0A%09%09%09html%20div%0A%09%09%09%09id%3A%27feedbackContent%27%3B%0A%09%09%09%09with%3A%5B%0A%09%09%09%09%09self%20paintContentOn%3A%20html.%0A%09%09%09%09%09self%20paintButtonOn%3A%20html%5D%5D%0A'),
+messageSends: ["id:", "hide", "asJQuery", "with:", "paintContentOn:", "paintButtonOn:", "div"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_paintButtonOn_'),
+smalltalk.method({
+selector: unescape('paintButtonOn%3A'),
+category: 'paint',
+fn: function (html){
+var self=this;
+(function($rec){smalltalk.send($rec, "_id_", ["feedbackClose"]);smalltalk.send($rec, "_with_", ["Close"]);return smalltalk.send($rec, "_onClick_", [(function(){return smalltalk.send(self, "_onClose", []);})]);})(smalltalk.send(html, "_button", []));
+return self;},
+args: ["html"],
+source: unescape('paintButtonOn%3A%20html%0A%0A%09html%20button%0A%09%09id%3A%20%27feedbackClose%27%3B%0A%09%09with%3A%20%27Close%27%3B%0A%09%09onClick%3A%5Bself%20onClose%5D'),
+messageSends: ["id:", "with:", "onClick:", "onClose", "button"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_paintContentOn_'),
+smalltalk.method({
+selector: unescape('paintContentOn%3A'),
+category: 'paint',
+fn: function (html){
+var self=this;
+(self['@content']=(function($rec){smalltalk.send($rec, "_id_", ["feedbackContentWrapper"]);return smalltalk.send($rec, "_yourself", []);})(smalltalk.send(html, "_div", [])));
+return self;},
+args: ["html"],
+source: unescape('paintContentOn%3A%20html%0A%0A%09content%20%3A%3D%20html%20div%0A%09%09%09%09id%3A%20%27feedbackContentWrapper%27%3B%0A%09%09%09%09yourself'),
+messageSends: ["id:", "yourself", "div"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_text'),
+smalltalk.method({
+selector: unescape('text'),
+category: 'accessing',
+fn: function (){
+var self=this;
+return self['@text'];
+return self;},
+args: [],
+source: unescape('text%0A%0A%09%5E%20text'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_text_'),
+smalltalk.method({
+selector: unescape('text%3A'),
+category: 'actions',
+fn: function (aString){
+var self=this;
+(self['@text']=aString);
+smalltalk.send(self, "_refresh", []);
+smalltalk.send(self, "_show", []);
+return self;},
+args: ["aString"],
+source: unescape('text%3A%20aString%0A%0A%09text%20%3A%3D%20aString.%0A%09self%20refresh.%0A%09self%20show'),
+messageSends: ["refresh", "show"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_initialize'),
+smalltalk.method({
+selector: unescape('initialize'),
+category: 'initialization',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_initialize", [], smalltalk.Presenter);
+(self['@text']=smalltalk.send((smalltalk.String || String), "_new", []));
+return self;},
+args: [],
+source: unescape('initialize%0A%0A%09super%20initialize.%0A%0A%09text%20%3A%3D%20String%20new.%0A'),
+messageSends: ["initialize", "new"],
+referencedClasses: ["String"]
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_refresh'),
+smalltalk.method({
+selector: unescape('refresh'),
+category: 'actions',
+fn: function (){
+var self=this;
+smalltalk.send(smalltalk.send(self['@content'], "_asJQuery", []), "_html_", [self['@text']]);
+return self;},
+args: [],
+source: unescape('refresh%0A%0A%09content%20asJQuery%20html%3A%20text%0A'),
+messageSends: ["html:", "asJQuery"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_show'),
+smalltalk.method({
+selector: unescape('show'),
+category: 'actions',
+fn: function (){
+var self=this;
+(function($rec){smalltalk.send($rec, "_slideDown_", [(500)]);return smalltalk.send($rec, "_fadeIn_do_", [(500), (function(){return smalltalk.send((typeof window == 'undefined' ? nil : window), "_setTimeout_delay_", [(function(){return (function($rec){smalltalk.send($rec, "_slideUp_", [(500)]);return smalltalk.send($rec, "_fadeOut_", [(500)]);})(smalltalk.send(self['@wrapper'], "_asJQuery", []));}), (3000)]);})]);})(smalltalk.send(self['@wrapper'], "_asJQuery", []));
+return self;},
+args: [],
+source: unescape('show%0A%0A%09wrapper%20asJQuery%20slideDown%3A%20500%3B%20fadeIn%3A%20500%20do%3A%5B%0A%09%09window%20setTimeout%3A%20%5Bwrapper%20asJQuery%20slideUp%3A%20500%3B%20fadeOut%3A%20500%5D%20delay%3A%203000%5D%09'),
+messageSends: ["slideDown:", "fadeIn:do:", "setTimeout:delay:", "slideUp:", "fadeOut:", "asJQuery"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_onClose'),
+smalltalk.method({
+selector: unescape('onClose'),
+category: 'reactions',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_hide", []);
+return self;},
+args: [],
+source: unescape('onClose%0A%0A%09self%20hide'),
+messageSends: ["hide"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_beNegative'),
+smalltalk.method({
+selector: unescape('beNegative'),
+category: 'actions',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_removePolarity", []);
+smalltalk.send(smalltalk.send(unescape("%23feedbackWrapper"), "_asJQuery", []), "_addClass_", ["negativeFeedback"]);
+return self;},
+args: [],
+source: unescape('beNegative%0A%0A%09self%20removePolarity.%0A%09%27%23feedbackWrapper%27%20asJQuery%20addClass%3A%20%27negativeFeedback%27'),
+messageSends: ["removePolarity", "addClass:", "asJQuery"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_beNeutral'),
+smalltalk.method({
+selector: unescape('beNeutral'),
+category: 'actions',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_removePolarity", []);
+smalltalk.send(smalltalk.send(unescape("%23feedbackWrapper"), "_asJQuery", []), "_addClass_", ["neutralFeedback"]);
+return self;},
+args: [],
+source: unescape('beNeutral%0A%0A%09self%20removePolarity.%0A%09%27%23feedbackWrapper%27%20asJQuery%20addClass%3A%20%27neutralFeedback%27'),
+messageSends: ["removePolarity", "addClass:", "asJQuery"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_bePositive'),
+smalltalk.method({
+selector: unescape('bePositive'),
+category: 'actions',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_removePolarity", []);
+smalltalk.send(smalltalk.send(unescape("%23feedbackWrapper"), "_asJQuery", []), "_addClass_", ["positiveFeedback"]);
+return self;},
+args: [],
+source: unescape('bePositive%0A%0A%09self%20removePolarity.%0A%09%27%23feedbackWrapper%27%20asJQuery%20addClass%3A%20%27positiveFeedback%27'),
+messageSends: ["removePolarity", "addClass:", "asJQuery"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_removePolarity'),
+smalltalk.method({
+selector: unescape('removePolarity'),
+category: 'actions',
+fn: function (){
+var self=this;
+smalltalk.send(["neutralFeedback", "neutralFeedback", "neutralFeedback"], "_do_", [(function(cssClass){return smalltalk.send(smalltalk.send(self['@wrapper'], "_asJQuery", []), "_removeClass_", [cssClass]);})]);
+return self;},
+args: [],
+source: unescape('removePolarity%0A%0A%09%23%28%27neutralFeedback%27%20%27neutralFeedback%27%20%27neutralFeedback%27%29%20do%3A%5B%3AcssClass%7C%0A%09%09wrapper%20asJQuery%20removeClass%3A%20cssClass%5D'),
+messageSends: ["do:", "removeClass:", "asJQuery"],
+referencedClasses: []
+}),
+smalltalk.Feedback);
+
 
 

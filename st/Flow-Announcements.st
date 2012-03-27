@@ -71,3 +71,36 @@ Announcement subclass: #ItemsLoaded
 	instanceVariableNames: ''
 	category: 'Flow-Announcements'!
 
+Announcement subclass: #FeedbackRequest
+	instanceVariableNames: 'polarity'
+	category: 'Flow-Announcements'!
+
+!FeedbackRequest methodsFor: 'accessing'!
+
+polarity
+
+	^ polarity
+!
+
+polarity: aString
+
+	polarity := aString
+! !
+
+!FeedbackRequest methodsFor: 'actions'!
+
+beNeutral
+
+	polarity := 'neutral'
+!
+
+bePositive
+
+	polarity := 'positive'
+!
+
+beNegative
+
+	polarity := 'negative'
+! !
+

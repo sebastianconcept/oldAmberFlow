@@ -583,6 +583,50 @@ return self;}
 }),
 smalltalk.Presenter);
 
+smalltalk.addMethod(
+unescape('_feedbackText_'),
+smalltalk.method({
+selector: unescape('feedbackText%3A'),
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_neutralFeedbackText_", [aString]);
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_positiveFeedbackText_'),
+smalltalk.method({
+selector: unescape('positiveFeedbackText%3A'),
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_announce_", [smalltalk.send(smalltalk.send((smalltalk.FeedbackRequest || FeedbackRequest), "_for_", [aString]), "_bePositive", [])]);
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_negativeFeedbackText_'),
+smalltalk.method({
+selector: unescape('negativeFeedbackText%3A'),
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_announce_", [smalltalk.send(smalltalk.send((smalltalk.FeedbackRequest || FeedbackRequest), "_for_", [aString]), "_beNegative", [])]);
+return self;}
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_neutralFeedbackText_'),
+smalltalk.method({
+selector: unescape('neutralFeedbackText%3A'),
+fn: function (aString){
+var self=this;
+smalltalk.send(self, "_announce_", [smalltalk.send(smalltalk.send((smalltalk.FeedbackRequest || FeedbackRequest), "_for_", [aString]), "_beNeutral", [])]);
+return self;}
+}),
+smalltalk.Presenter);
+
 
 smalltalk.addMethod(
 unescape('_for_'),
@@ -1293,5 +1337,252 @@ return (7);
 return self;}
 }),
 smalltalk.BunchPresenter.klass);
+
+
+smalltalk.addClass('Application', smalltalk.Presenter, ['feedback'], 'Flow-Presenters');
+smalltalk.addMethod(
+unescape('_feedback'),
+smalltalk.method({
+selector: unescape('feedback'),
+fn: function (){
+var self=this;
+return (($receiver = self['@feedback']) == nil || $receiver == undefined) ? (function(){return smalltalk.send(self, "_initializeFeedback", []);})() : $receiver;
+return self;}
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_initializeFeedback'),
+smalltalk.method({
+selector: unescape('initializeFeedback'),
+fn: function (){
+var self=this;
+return (self['@feedback']=smalltalk.send(self, "_makeFeedback", []));
+return self;}
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_makeFeedback'),
+smalltalk.method({
+selector: unescape('makeFeedback'),
+fn: function (){
+var self=this;
+return smalltalk.send((smalltalk.Feedback || Feedback), "_new", []);
+return self;}
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_feedbackText_'),
+smalltalk.method({
+selector: unescape('feedbackText%3A'),
+fn: function (aString){
+var self=this;
+smalltalk.send(smalltalk.send(self, "_feedback", []), "_text_", [aString]);
+return self;}
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_negativeFeedbackText_'),
+smalltalk.method({
+selector: unescape('negativeFeedbackText%3A'),
+fn: function (aString){
+var self=this;
+(function($rec){smalltalk.send($rec, "_beNegative", []);return smalltalk.send($rec, "_text_", [aString]);})(smalltalk.send(self, "_feedback", []));
+return self;}
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_positiveFeedbackText_'),
+smalltalk.method({
+selector: unescape('positiveFeedbackText%3A'),
+fn: function (aString){
+var self=this;
+(function($rec){smalltalk.send($rec, "_bePositive", []);return smalltalk.send($rec, "_text_", [aString]);})(smalltalk.send(self, "_feedback", []));
+return self;}
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_neutralFeedbackText_'),
+smalltalk.method({
+selector: unescape('neutralFeedbackText%3A'),
+fn: function (aString){
+var self=this;
+(function($rec){smalltalk.send($rec, "_beNeutral", []);return smalltalk.send($rec, "_text_", [aString]);})(smalltalk.send(self, "_feedback", []));
+return self;}
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_onFeedback_'),
+smalltalk.method({
+selector: unescape('onFeedback%3A'),
+fn: function (anAnnouncement){
+var self=this;
+var polarity=nil;
+(polarity=smalltalk.send(anAnnouncement, "_polarity", []));
+smalltalk.send(self, "_perform_withArguments_", [smalltalk.send(polarity, "__comma", ["FeedbackText:"]), smalltalk.send((smalltalk.Array || Array), "_with_", [smalltalk.send(anAnnouncement, "_subject", [])])]);
+return self;}
+}),
+smalltalk.Application);
+
+
+
+smalltalk.addClass('Feedback', smalltalk.Presenter, ['content', 'text'], 'Flow-Presenters');
+smalltalk.addMethod(
+unescape('_paintOn_'),
+smalltalk.method({
+selector: unescape('paintOn%3A'),
+fn: function (html){
+var self=this;
+smalltalk.send(self['@wrapper'], "_id_", ["feedback"]);
+smalltalk.send(smalltalk.send(self['@wrapper'], "_asJQuery", []), "_hide", []);
+(function($rec){smalltalk.send($rec, "_id_", ["feedbackWrapper"]);return smalltalk.send($rec, "_with_", [(function(){return (function($rec){smalltalk.send($rec, "_id_", ["feedbackContent"]);return smalltalk.send($rec, "_with_", [(function(){smalltalk.send(self, "_paintContentOn_", [html]);return smalltalk.send(self, "_paintButtonOn_", [html]);})]);})(smalltalk.send(html, "_div", []));})]);})(smalltalk.send(html, "_div", []));
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_paintButtonOn_'),
+smalltalk.method({
+selector: unescape('paintButtonOn%3A'),
+fn: function (html){
+var self=this;
+(function($rec){smalltalk.send($rec, "_id_", ["feedbackClose"]);smalltalk.send($rec, "_with_", ["Close"]);return smalltalk.send($rec, "_onClick_", [(function(){return smalltalk.send(self, "_onClose", []);})]);})(smalltalk.send(html, "_button", []));
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_paintContentOn_'),
+smalltalk.method({
+selector: unescape('paintContentOn%3A'),
+fn: function (html){
+var self=this;
+(self['@content']=(function($rec){smalltalk.send($rec, "_id_", ["feedbackContentWrapper"]);return smalltalk.send($rec, "_yourself", []);})(smalltalk.send(html, "_div", [])));
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_text'),
+smalltalk.method({
+selector: unescape('text'),
+fn: function (){
+var self=this;
+return self['@text'];
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_text_'),
+smalltalk.method({
+selector: unescape('text%3A'),
+fn: function (aString){
+var self=this;
+(self['@text']=aString);
+smalltalk.send(self, "_refresh", []);
+smalltalk.send(self, "_show", []);
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_initialize'),
+smalltalk.method({
+selector: unescape('initialize'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_initialize", [], smalltalk.Presenter);
+(self['@text']=smalltalk.send((smalltalk.String || String), "_new", []));
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_refresh'),
+smalltalk.method({
+selector: unescape('refresh'),
+fn: function (){
+var self=this;
+smalltalk.send(smalltalk.send(self['@content'], "_asJQuery", []), "_html_", [self['@text']]);
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_show'),
+smalltalk.method({
+selector: unescape('show'),
+fn: function (){
+var self=this;
+(function($rec){smalltalk.send($rec, "_slideDown_", [(500)]);return smalltalk.send($rec, "_fadeIn_do_", [(500), (function(){return smalltalk.send((typeof window == 'undefined' ? nil : window), "_setTimeout_delay_", [(function(){return (function($rec){smalltalk.send($rec, "_slideUp_", [(500)]);return smalltalk.send($rec, "_fadeOut_", [(500)]);})(smalltalk.send(self['@wrapper'], "_asJQuery", []));}), (3000)]);})]);})(smalltalk.send(self['@wrapper'], "_asJQuery", []));
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_onClose'),
+smalltalk.method({
+selector: unescape('onClose'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_hide", []);
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_beNegative'),
+smalltalk.method({
+selector: unescape('beNegative'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_removePolarity", []);
+smalltalk.send(smalltalk.send(unescape("%23feedbackWrapper"), "_asJQuery", []), "_addClass_", ["negativeFeedback"]);
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_beNeutral'),
+smalltalk.method({
+selector: unescape('beNeutral'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_removePolarity", []);
+smalltalk.send(smalltalk.send(unescape("%23feedbackWrapper"), "_asJQuery", []), "_addClass_", ["neutralFeedback"]);
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_bePositive'),
+smalltalk.method({
+selector: unescape('bePositive'),
+fn: function (){
+var self=this;
+smalltalk.send(self, "_removePolarity", []);
+smalltalk.send(smalltalk.send(unescape("%23feedbackWrapper"), "_asJQuery", []), "_addClass_", ["positiveFeedback"]);
+return self;}
+}),
+smalltalk.Feedback);
+
+smalltalk.addMethod(
+unescape('_removePolarity'),
+smalltalk.method({
+selector: unescape('removePolarity'),
+fn: function (){
+var self=this;
+smalltalk.send(["neutralFeedback", "neutralFeedback", "neutralFeedback"], "_do_", [(function(cssClass){return smalltalk.send(smalltalk.send(self['@wrapper'], "_asJQuery", []), "_removeClass_", [cssClass]);})]);
+return self;}
+}),
+smalltalk.Feedback);
+
 
 

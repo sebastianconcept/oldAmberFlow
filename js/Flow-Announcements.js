@@ -117,3 +117,86 @@ smalltalk.addClass('ModelRefreshed', smalltalk.Announcement, [], 'Flow-Announcem
 smalltalk.addClass('ItemsLoaded', smalltalk.Announcement, [], 'Flow-Announcements');
 
 
+smalltalk.addClass('FeedbackRequest', smalltalk.Announcement, ['polarity'], 'Flow-Announcements');
+smalltalk.addMethod(
+unescape('_beNeutral'),
+smalltalk.method({
+selector: unescape('beNeutral'),
+category: 'actions',
+fn: function (){
+var self=this;
+(self['@polarity']="neutral");
+return self;},
+args: [],
+source: unescape('beNeutral%0A%0A%09polarity%20%3A%3D%20%27neutral%27'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_bePositive'),
+smalltalk.method({
+selector: unescape('bePositive'),
+category: 'actions',
+fn: function (){
+var self=this;
+(self['@polarity']="positive");
+return self;},
+args: [],
+source: unescape('bePositive%0A%0A%09polarity%20%3A%3D%20%27positive%27'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_beNegative'),
+smalltalk.method({
+selector: unescape('beNegative'),
+category: 'actions',
+fn: function (){
+var self=this;
+(self['@polarity']="negative");
+return self;},
+args: [],
+source: unescape('beNegative%0A%0A%09polarity%20%3A%3D%20%27negative%27'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_polarity'),
+smalltalk.method({
+selector: unescape('polarity'),
+category: 'accessing',
+fn: function (){
+var self=this;
+return self['@polarity'];
+return self;},
+args: [],
+source: unescape('polarity%0A%0A%09%5E%20polarity'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.FeedbackRequest);
+
+smalltalk.addMethod(
+unescape('_polarity_'),
+smalltalk.method({
+selector: unescape('polarity%3A'),
+category: 'accessing',
+fn: function (aString){
+var self=this;
+(self['@polarity']=aString);
+return self;},
+args: ["aString"],
+source: unescape('polarity%3A%20aString%0A%0A%09polarity%20%3A%3D%20aString'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.FeedbackRequest);
+
+
+
