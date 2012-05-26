@@ -301,10 +301,11 @@ fn: function (){
 var self=this;
 smalltalk.send(self, "_onAboutToOpen", []);
 smalltalk.send(self, "_paintOnJQuery_", [smalltalk.send("body", "_asJQuery", [])]);
+smalltalk.send(self, "_onAfterOpen", []);
 return self;},
 args: [],
-source: unescape('open%0A%09%0A%09self%20onAboutToOpen.%0A%0A%09self%20paintOnJQuery%3A%20%27body%27%20asJQuery%20'),
-messageSends: ["onAboutToOpen", "paintOnJQuery:", "asJQuery"],
+source: unescape('open%0A%09%0A%09self%20onAboutToOpen.%0A%0A%09self%20paintOnJQuery%3A%20%27body%27%20asJQuery.%0A%0A%09self%20onAfterOpen'),
+messageSends: ["onAboutToOpen", "paintOnJQuery:", "asJQuery", "onAfterOpen"],
 referencedClasses: []
 }),
 smalltalk.Presenter);
@@ -500,11 +501,12 @@ fn: function (html){
 var self=this;
 (self['@wrapper']=smalltalk.send(html, "_div", []));
 (function($rec){smalltalk.send($rec, "_class_", [smalltalk.send(smalltalk.send(self, "_class", []), "_name", [])]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(self, "_paintOn_", [html]);})]);})(self['@wrapper']);
+smalltalk.send(self, "_onAfterPainted", []);
 (painted=true);
 return self;},
 args: ["html"],
-source: unescape('renderOn%3A%20html%0A%09%22Start%20to%20paint%20this%20presenter.%0A%09Note%3A%20presenters%20are%20always%20wrapped%20in%20a%20div%20using%20as%20CSS%20class%0A%09it%27s%20class%20name.%22%0A%0A%09wrapper%20%3A%3D%20html%20div.%0A%09%0A%09wrapper%0A%09%09class%3A%20self%20class%20name%3B%0A%09%09with%3A%5Bself%20paintOn%3A%20html%5D.%0A%0A%09painted%20%3A%3D%20true.'),
-messageSends: ["div", "class:", "name", "class", "with:", "paintOn:"],
+source: unescape('renderOn%3A%20html%0A%09%22Start%20to%20paint%20this%20presenter.%0A%09Note%3A%20presenters%20are%20always%20wrapped%20in%20a%20div%20using%20as%20CSS%20class%0A%09it%27s%20class%20name.%22%0A%0A%09wrapper%20%3A%3D%20html%20div.%0A%09%0A%09wrapper%0A%09%09class%3A%20self%20class%20name%3B%0A%09%09with%3A%5Bself%20paintOn%3A%20html%5D.%0A%09self%20onAfterPainted.%0A%09painted%20%3A%3D%20true.'),
+messageSends: ["div", "class:", "name", "class", "with:", "paintOn:", "onAfterPainted"],
 referencedClasses: []
 }),
 smalltalk.Presenter);
@@ -630,12 +632,12 @@ selector: unescape('paint%3A'),
 category: 'actions',
 fn: function (aPresenter){
 var self=this;
-smalltalk.send(aPresenter, "_paintOnJQuery_", [smalltalk.send(self, "_asJQuery", [])]);
+smalltalk.send((function(){return smalltalk.send(aPresenter, "_paintOnJQuery_", [smalltalk.send(self, "_asJQuery", [])]);}), "_on_do_", [(smalltalk.Error || Error), (function(x){return smalltalk.send(self, "_halt", []);})]);
 return self;},
 args: ["aPresenter"],
-source: unescape('paint%3A%20aPresenter%0A%09%22Paints%20the%20%28sub%29preenter%20aPresenter%20in%20this%20%28parent%29presenter.%22%0A%0A%09aPresenter%20paintOnJQuery%3A%20self%20asJQuery%0A'),
-messageSends: ["paintOnJQuery:", "asJQuery"],
-referencedClasses: []
+source: unescape('paint%3A%20aPresenter%0A%09%22Paints%20the%20%28sub%29preenter%20aPresenter%20in%20this%20%28parent%29presenter.%22%0A%0A%09%5BaPresenter%20paintOnJQuery%3A%20self%20asJQuery%5D%20on%3A%20Error%20do%3A%5B%3Ax%7C%20self%20halt%5D'),
+messageSends: ["on:do:", "paintOnJQuery:", "asJQuery", "halt"],
+referencedClasses: ["Error"]
 }),
 smalltalk.Presenter);
 
@@ -695,15 +697,14 @@ selector: unescape('remove%3A'),
 category: 'actions',
 fn: function (aPresenter){
 var self=this;
-try{var target=nil;
+var target=nil;
 smalltalk.send(smalltalk.send(self, "_children", []), "_keysAndValuesDo_", [(function(k, v){return ((($receiver = smalltalk.send(v, "__eq_eq", [aPresenter])).klass === smalltalk.Boolean) ? ($receiver ? (function(){return (target=k);})() : nil) : smalltalk.send($receiver, "_ifTrue_", [(function(){return (target=k);})]));})]);
-smalltalk.send(smalltalk.send(self, "_children", []), "_removeKey_ifAbsent_", [target, (function(){return (function(){throw({name: 'stReturn', selector: '_remove_', fn: function(){return nil}})})();})]);
 smalltalk.send(smalltalk.send(aPresenter, "_asJQuery", []), "_remove", []);
-return self;
-} catch(e) {if(e.name === 'stReturn' && e.selector === '_remove_'){return e.fn()} throw(e)}},
+smalltalk.send(smalltalk.send(self, "_children", []), "_removeKey_ifAbsent_", [target, (function(){return nil;})]);
+return self;},
 args: ["aPresenter"],
-source: unescape('remove%3A%20aPresenter%0A%09%22Removes%20aPresenter%20from%20this%20presenter%20and%20from%20the%20DOM.%0A%09Note%3A%20JQuery%20takes%20care%20of%20terminating%20event%20observations.%22%0A%09%7C%20target%20%7C%0A%0A%09self%20children%20keysAndValuesDo%3A%5B%3Ak%20%3Av%7C%09%0A%09%09%28v%20%3D%3D%20aPresenter%29%20ifTrue%3A%5B%0A%09%09%09target%20%3A%3D%20k%5D%5D.%0A%0A%09self%20children%20removeKey%3A%20target%20ifAbsent%3A%5B%5Enil%5D.%0A%09aPresenter%20asJQuery%20remove%0A'),
-messageSends: ["keysAndValuesDo:", "children", "ifTrue:", unescape("%3D%3D"), "removeKey:ifAbsent:", "remove", "asJQuery"],
+source: unescape('remove%3A%20aPresenter%0A%09%22Removes%20aPresenter%20from%20this%20presenter%20and%20from%20the%20DOM.%0A%09Note%3A%20JQuery%20takes%20care%20of%20terminating%20event%20observations.%22%0A%09%7C%20target%20%7C%0A%0A%09self%20children%20keysAndValuesDo%3A%5B%3Ak%20%3Av%7C%09%0A%09%09%28v%20%3D%3D%20aPresenter%29%20ifTrue%3A%5B%0A%09%09%09target%20%3A%3D%20k%5D%5D.%0A%0A%09aPresenter%20asJQuery%20remove.%0A%09self%20children%20removeKey%3A%20target%20ifAbsent%3A%5Bnil%5D.%0A'),
+messageSends: ["keysAndValuesDo:", "children", "ifTrue:", unescape("%3D%3D"), "remove", "asJQuery", "removeKey:ifAbsent:"],
 referencedClasses: []
 }),
 smalltalk.Presenter);
@@ -715,11 +716,11 @@ selector: unescape('removeAll'),
 category: 'actions',
 fn: function (){
 var self=this;
-smalltalk.send(smalltalk.send(self, "_subPresenters", []), "_do_", [(function(e){return smalltalk.send(self, "_remove_", [e]);})]);
+smalltalk.send(smalltalk.send(self, "_subPresenters", []), "_do_", [(function(e){return smalltalk.send(e, "_remove", []);})]);
 return self;},
 args: [],
-source: unescape('removeAll%0A%0A%09self%20subPresenters%20do%3A%5B%3Ae%7C%20self%20remove%3A%20e%5D'),
-messageSends: ["do:", "subPresenters", "remove:"],
+source: unescape('removeAll%0A%0A%09self%20subPresenters%20do%3A%5B%3Ae%7C%20%0A%09%09e%20remove%5D'),
+messageSends: ["do:", "subPresenters", "remove"],
 referencedClasses: []
 }),
 smalltalk.Presenter);
@@ -899,6 +900,121 @@ args: ["aString"],
 source: unescape('neutralFeedbackText%3A%20aString%0A%0A%09self%20announce%3A%20%28FeedbackRequest%20for%3A%20aString%29%20beNeutral'),
 messageSends: ["announce:", "beNeutral", "for:"],
 referencedClasses: ["FeedbackRequest"]
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_onAfterOpen'),
+smalltalk.method({
+selector: unescape('onAfterOpen'),
+category: 'reactions',
+fn: function (){
+var self=this;
+
+return self;},
+args: [],
+source: unescape('onAfterOpen%0A%0A%09%22no-op%22'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_setId_'),
+smalltalk.method({
+selector: unescape('setId%3A'),
+category: 'actions',
+fn: function (aString){
+var self=this;
+smalltalk.send(self['@wrapper'], "_id_", [aString]);
+return self;},
+args: ["aString"],
+source: unescape('setId%3A%20aString%0A%0A%09wrapper%20id%3A%20aString'),
+messageSends: ["id:"],
+referencedClasses: []
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_onAfterPainted'),
+smalltalk.method({
+selector: unescape('onAfterPainted'),
+category: 'reactions',
+fn: function (){
+var self=this;
+
+return self;},
+args: [],
+source: unescape('onAfterPainted%0A%0A%09%22no-op%22'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_isPainted'),
+smalltalk.method({
+selector: unescape('isPainted'),
+category: 'testing',
+fn: function (){
+var self=this;
+return (typeof painted == 'undefined' ? nil : painted);
+return self;},
+args: [],
+source: unescape('isPainted%0A%0A%09%5E%20painted'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_remove'),
+smalltalk.method({
+selector: unescape('remove'),
+category: 'actions',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_removeAll", []);
+(($receiver = self['@parent']) == nil || $receiver == undefined) ? (function(){return smalltalk.send(smalltalk.send(self, "_asJQuery", []), "_remove", []);})() : (function(){return smalltalk.send(self['@parent'], "_remove_", [self]);})();
+return self;},
+args: [],
+source: unescape('remove%0A%0A%09self%20removeAll.%0A%0A%09parent%20%0A%09%09ifNil%3A%5Bself%20asJQuery%20remove.%5D%0A%09%09ifNotNil%3A%5Bparent%20remove%3A%20self%5D.%0A%0A'),
+messageSends: ["removeAll", "ifNil:ifNotNil:", "remove", "asJQuery", "remove:"],
+referencedClasses: []
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_removeAt_'),
+smalltalk.method({
+selector: unescape('removeAt%3A'),
+category: 'actions',
+fn: function (aKey){
+var self=this;
+var target=nil;
+smalltalk.send(smalltalk.send(self, "_children", []), "_keysAndValuesDo_", [(function(k, v){return ((($receiver = smalltalk.send(k, "__eq_eq", [aKey])).klass === smalltalk.Boolean) ? ($receiver ? (function(){return (target=v);})() : nil) : smalltalk.send($receiver, "_ifTrue_", [(function(){return (target=v);})]));})]);
+(($receiver = target) != nil && $receiver != undefined) ? (function(){return smalltalk.send(target, "_remove", []);})() : nil;
+return self;},
+args: ["aKey"],
+source: unescape('removeAt%3A%20aKey%0A%09%22Removes%20the%20%28sub%29presenter%20found%20at%20aKey%0A%09does%20nothing%20otherwise.%22%0A%09%7C%20target%20%7C%0A%0A%09self%20children%20keysAndValuesDo%3A%5B%3Ak%20%3Av%7C%09%0A%09%09%28k%20%3D%3D%20aKey%29%20ifTrue%3A%5B%0A%09%09%09target%20%3A%3D%20v%5D%5D.%0A%0A%09target%20ifNotNil%3A%5Btarget%20remove%5D%0A'),
+messageSends: ["keysAndValuesDo:", "children", "ifTrue:", unescape("%3D%3D"), "ifNotNil:", "remove"],
+referencedClasses: []
+}),
+smalltalk.Presenter);
+
+smalltalk.addMethod(
+unescape('_wrapper_'),
+smalltalk.method({
+selector: unescape('wrapper%3A'),
+category: 'accessing',
+fn: function (aTagBrush){
+var self=this;
+(self['@wrapper']=aTagBrush);
+return self;},
+args: ["aTagBrush"],
+source: unescape('wrapper%3A%20aTagBrush%0A%0A%09wrapper%20%3A%3D%20aTagBrush'),
+messageSends: [],
+referencedClasses: []
 }),
 smalltalk.Presenter);
 
@@ -2057,6 +2173,56 @@ referencedClasses: ["Array"]
 }),
 smalltalk.Application);
 
+smalltalk.addMethod(
+unescape('_onAfterOpen'),
+smalltalk.method({
+selector: unescape('onAfterOpen'),
+category: 'reactions',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_onAfterOpen", [], smalltalk.Presenter);
+smalltalk.send((typeof window == 'undefined' ? nil : window), "_at_put_", ["app", self]);
+return self;},
+args: [],
+source: unescape('onAfterOpen%0A%0A%09super%20onAfterOpen.%0A%0A%09window%20at%3A%20%27app%27%20put%3A%20self%0A'),
+messageSends: ["onAfterOpen", "at:put:"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_initialize'),
+smalltalk.method({
+selector: unescape('initialize'),
+category: 'initialization',
+fn: function (){
+var self=this;
+smalltalk.send(self, "_initialize", [], smalltalk.Presenter);
+smalltalk.send(smalltalk.send((typeof window == 'undefined' ? nil : window), "_jQuery_", [(typeof window == 'undefined' ? nil : window)]), "_bind_do_", ["hashchange", (function(){return smalltalk.send(self, "_onHash", []);})]);
+return self;},
+args: [],
+source: unescape('initialize%0A%0A%09super%20initialize.%0A%0A%09%28window%20jQuery%3A%20window%29%20bind%3A%20%27hashchange%27%20do%3A%20%5Bself%20onHash%5D.'),
+messageSends: ["initialize", "bind:do:", "jQuery:", "onHash"],
+referencedClasses: []
+}),
+smalltalk.Application);
+
+smalltalk.addMethod(
+unescape('_onHash'),
+smalltalk.method({
+selector: unescape('onHash'),
+category: 'reactions',
+fn: function (){
+var self=this;
+
+return self;},
+args: [],
+source: unescape('onHash%0A%09%22The%20hash%20in%20the%20application%20URL%20has%20changed.%22%0A%0A%09%22no-op%22'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.Application);
+
 
 
 smalltalk.addClass('Feedback', smalltalk.Presenter, ['content', 'text'], 'Flow-Presenters');
@@ -2276,5 +2442,25 @@ referencedClasses: []
 }),
 smalltalk.Feedback);
 
+
+
+smalltalk.addClass('TagBrushPresenter', smalltalk.Presenter, [], 'Flow-Presenters');
+smalltalk.TagBrushPresenter.comment=unescape('This%20presenter%20is%20a%20wrapping%20facility%20for%20aTagBrush.%0A%0AIts%20value%20is%20in%20wrapping%20aTagBrush%20as%20if%20it%20were%20a%20flow%20presenter.%0A%0ASo%20you%20can%20make%20something%20like%0A%0AanAlbum%3E%3EmakeAddTrack%0A%0A%09aTagBrush%20%3A%3D%20html%20div%20id%3A%20%27quickDiv%27%3B%20class%3A%20%27aham%27%3B%20with%3A%5Bhtml%20a%20with%3A%20%27add%20new%20track%27%5D.%0A%0A%09%5E%20TagBrushPresenter%20for%3A%20aTagBrush%0A%0A%0AIn%20that%20way%2C%20your%20Album%20presenter%20can%20treat%20that%20div%20as%20if%20it%20were%20a%20subpresenter%0A%09%09%0A')
+
+smalltalk.addMethod(
+unescape('_for_'),
+smalltalk.method({
+selector: unescape('for%3A'),
+category: 'actions',
+fn: function (aTagBrush){
+var self=this;
+return (function($rec){smalltalk.send($rec, "_wrapper_", [aTagBrush]);return smalltalk.send($rec, "_yourself", []);})(smalltalk.send(self, "_new", []));
+return self;},
+args: ["aTagBrush"],
+source: unescape('for%3A%20aTagBrush%0A%0A%09%5E%20self%20new%0A%09%09wrapper%3A%20aTagBrush%3B%0A%09%09yourself'),
+messageSends: ["wrapper:", "yourself", "new"],
+referencedClasses: []
+}),
+smalltalk.TagBrushPresenter.klass);
 
 

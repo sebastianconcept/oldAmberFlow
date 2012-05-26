@@ -104,3 +104,15 @@ beNegative
 	polarity := 'negative'
 ! !
 
+Announcement subclass: #SaveChanges
+	instanceVariableNames: ''
+	category: 'Flow-Announcements'!
+
+Announcement subclass: #DiscardChanges
+	instanceVariableNames: ''
+	category: 'Flow-Announcements'!
+
+Announcement subclass: #GoBackClicked
+	instanceVariableNames: ''
+	category: 'Flow-Announcements'!
+

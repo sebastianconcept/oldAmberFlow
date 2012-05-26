@@ -156,6 +156,11 @@ subPresenters
 tr
 
 	^ tr
+!
+
+wrapper: aTagBrush
+
+	wrapper := aTagBrush
 ! !
 
 !Presenter methodsFor: 'actions'!
@@ -179,7 +184,9 @@ open
 	
 	self onAboutToOpen.
 
-	self paintOnJQuery: 'body' asJQuery
+	self paintOnJQuery: 'body' asJQuery.
+
+	self onAfterOpen
 !
 
 newCanvasOn: aJQuery
@@ -210,7 +217,7 @@ append: aPresenter
 paint: aPresenter
 	"Paints the (sub)preenter aPresenter in this (parent)presenter."
 
-	aPresenter paintOnJQuery: self asJQuery
+	[aPresenter paintOnJQuery: self asJQuery] on: Error do:[:x| self halt]
 !
 
 hideAll
@@ -238,13 +245,14 @@ remove: aPresenter
 		(v == aPresenter) ifTrue:[
 			target := k]].
 
-	self children removeKey: target ifAbsent:[^nil].
-	aPresenter asJQuery remove
+	aPresenter asJQuery remove.
+	self children removeKey: target ifAbsent:[nil].
 !
 
 removeAll
 
-	self subPresenters do:[:e| self remove: e]
+	self subPresenters do:[:e| 
+		e remove]
 !
 
 feedbackText: aString
@@ -265,6 +273,32 @@ negativeFeedbackText: aString
 neutralFeedbackText: aString
 
 	self announce: (FeedbackRequest for: aString) beNeutral
+!
+
+setId: aString
+
+	wrapper id: aString
+!
+
+remove
+
+	self removeAll.
+
+	parent 
+		ifNil:[self asJQuery remove.]
+		ifNotNil:[parent remove: self].
+!
+
+removeAt: aKey
+	"Removes the (sub)presenter found at aKey
+	does nothing otherwise."
+	| target |
+
+	self children keysAndValuesDo:[:k :v|	
+		(k == aKey) ifTrue:[
+			target := v]].
+
+	target ifNotNil:[target remove]
 ! !
 
 !Presenter methodsFor: 'initialization'!
@@ -346,6 +380,16 @@ onHide
 onShow
 
 	"no-op"
+!
+
+onAfterOpen
+
+	"no-op"
+!
+
+onAfterPainted
+
+	"no-op"
 ! !
 
 !Presenter methodsFor: 'rendering'!
@@ -360,7 +404,7 @@ renderOn: html
 	wrapper
 		class: self class name;
 		with:[self paintOn: html].
-
+	self onAfterPainted.
 	painted := true.
 ! !
 
@@ -379,6 +423,11 @@ isPresenter
 hasPresenterAt: aKey
 
 	^ self children includesKey: aKey
+!
+
+isPainted
+
+	^ painted
 ! !
 
 !Presenter class methodsFor: 'accessing'!
@@ -885,6 +934,13 @@ makeFeedback
 
 initializeFeedback
 	^ feedback := self makeFeedback
+!
+
+initialize
+
+	super initialize.
+
+	(window jQuery: window) bind: 'hashchange' do: [self onHash].
 ! !
 
 !Application methodsFor: 'reactions'!
@@ -895,6 +951,19 @@ onFeedback: anAnnouncement
 
 	polarity := anAnnouncement polarity.
 	self perform: (polarity, 'FeedbackText:') withArguments: (Array with: anAnnouncement subject)
+!
+
+onAfterOpen
+
+	super onAfterOpen.
+
+	window at: 'app' put: self
+!
+
+onHash
+	"The hash in the application URL has changed."
+
+	"no-op"
 ! !
 
 Presenter subclass: #Feedback
@@ -998,5 +1067,33 @@ paintContentOn: html
 onClose
 
 	self hide
+! !
+
+Presenter subclass: #TagBrushPresenter
+	instanceVariableNames: ''
+	category: 'Flow-Presenters'!
+!TagBrushPresenter commentStamp!
+This presenter is a wrapping facility for aTagBrush.
+
+Its value is in wrapping aTagBrush as if it were a flow presenter.
+
+So you can make something like
+
+anAlbum>>makeAddTrack
+
+	aTagBrush := html div id: 'quickDiv'; class: 'aham'; with:[html a with: 'add new track'].
+
+	^ TagBrushPresenter for: aTagBrush
+
+
+In that way, your Album presenter can treat that div as if it were a subpresenter!
+
+!TagBrushPresenter class methodsFor: 'actions'!
+
+for: aTagBrush
+
+	^ self new
+		wrapper: aTagBrush;
+		yourself
 ! !
 
