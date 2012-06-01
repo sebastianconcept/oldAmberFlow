@@ -149,6 +149,7 @@ smalltalk.Model.klass);
 
 
 smalltalk.addClass('JsonPersistentModel', smalltalk.Model, ['data'], 'Flow-Models');
+smalltalk.JsonPersistentModel.comment=unescape('This%20is%20the%20superclass%20of%20persistent%20models%20%28that%20also%20are%20JSON-able%29')
 smalltalk.addMethod(
 unescape('_id_'),
 smalltalk.method({
@@ -876,6 +877,7 @@ smalltalk.JsonPersistentModel.klass);
 
 
 smalltalk.addClass('JsonModel', smalltalk.Model, ['data'], 'Flow-Models');
+smalltalk.JsonModel.comment=unescape('This%20is%20going%20to%20be%20the%20superclass%20of%20non%20persisted%2C%20but%20JSON-able%2C%20kind%20of%20models')
 smalltalk.addMethod(
 unescape('_asJSONString'),
 smalltalk.method({

@@ -69,6 +69,8 @@ initialize
 Model subclass: #JsonPersistentModel
 	instanceVariableNames: 'data'
 	category: 'Flow-Models'!
+!JsonPersistentModel commentStamp!
+This is the superclass of persistent models (that also are JSON-able)!
 
 !JsonPersistentModel methodsFor: 'accessing'!
 
@@ -408,6 +410,8 @@ onAfterRead: someJson done: aBlock
 Model subclass: #JsonModel
 	instanceVariableNames: 'data'
 	category: 'Flow-Models'!
+!JsonModel commentStamp!
+This is going to be the superclass of non persisted, but JSON-able, kind of models!
 
 !JsonModel methodsFor: 'accessing'!
 
