@@ -1097,6 +1097,32 @@ return self;}
 }),
 smalltalk.ItemsPresenter);
 
+smalltalk.addMethod(
+unescape('_refreshDo_'),
+smalltalk.method({
+selector: unescape('refreshDo%3A'),
+fn: function (aBlock){
+var self=this;
+try{((($receiver = smalltalk.send(self, "_isLoaded", [])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){return (function(){throw({name: 'stReturn', selector: '_refreshDo_', fn: function(){return self}})})();})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){return (function(){throw({name: 'stReturn', selector: '_refreshDo_', fn: function(){return self}})})();})]));
+smalltalk.send(self, "_reset", []);
+smalltalk.send(self, "_loadAndPaintOn_done_", [smalltalk.send(self, "_newCanvas", []), aBlock]);
+return self;
+} catch(e) {if(e.name === 'stReturn' && e.selector === '_refreshDo_'){return e.fn()} throw(e)}}
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_loadAndPaintOn_done_'),
+smalltalk.method({
+selector: unescape('loadAndPaintOn%3Adone%3A'),
+fn: function (html, aBlock){
+var self=this;
+smalltalk.send(self, "_onAboutToLoad", []);
+smalltalk.send(self, "_itemsDo_", [(function(){smalltalk.send(self, "_paintItemsOn_", [html]);smalltalk.send(self, "_onAfterLoaded", []);return smalltalk.send(aBlock, "_value", []);})]);
+return self;}
+}),
+smalltalk.ItemsPresenter);
+
 
 
 smalltalk.addClass('BunchPresenter', smalltalk.ItemsPresenter, ['bunchSize', 'index', 'atEnd', 'lastItems', 'more'], 'Flow-Presenters');

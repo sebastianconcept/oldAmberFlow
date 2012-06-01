@@ -214,12 +214,6 @@ append: aPresenter
 	wrapper append: aPresenter asJQuery
 !
 
-paint: aPresenter
-	"Paints the (sub)preenter aPresenter in this (parent)presenter."
-
-	[aPresenter paintOnJQuery: self asJQuery] on: Error do:[:x| self halt]
-!
-
 hideAll
 	"Hide all the children.
 	Note: it's done in such a way that if they don't exist they won't evoked."
@@ -349,6 +343,12 @@ paintOnJQuery: aJQuery
 	"Appends what's being paint by this presenter to aJQuery."
 
 	self appendToJQuery: aJQuery
+!
+
+paint: aPresenter
+	"Paints the (sub)preenter aPresenter in this (parent)presenter."
+
+	[aPresenter paintOnJQuery: self asJQuery] on: Error do:[:x| self halt]
 ! !
 
 !Presenter methodsFor: 'reactions'!
@@ -610,6 +610,14 @@ makeItemsFromJson: someJson
 	"Answers the collection of items reified from someJson."
 
 	self subclassResponsibility
+!
+
+refreshDo: aBlock
+
+	self isLoaded ifFalse:[^self].
+
+	self reset.
+	self loadAndPaintOn: self newCanvas done: aBlock
 ! !
 
 !ItemsPresenter methodsFor: 'initializing'!
@@ -646,6 +654,16 @@ loadAndPaintOn: html
 	self itemsDo:[
 		self paintItemsOn: html.
 		self onAfterLoaded]
+!
+
+loadAndPaintOn: html done: aBlock
+
+	self onAboutToLoad.
+
+	self itemsDo:[
+		self paintItemsOn: html.
+		self onAfterLoaded.
+		aBlock value]
 ! !
 
 !ItemsPresenter methodsFor: 'reactions'!

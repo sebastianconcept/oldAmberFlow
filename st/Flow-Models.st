@@ -1,7 +1,7 @@
 Smalltalk current createPackage: 'Flow-Models' properties: #{}!
 Object subclass: #Model
 	instanceVariableNames: 'announcer'
-	category: 'Flow-Models'!
+	package: 'Flow-Models'!
 !Model commentStamp!
 Models are meant to be used as local-only (at the DOM) objects that should be transident in nature (not-persistent)!
 
@@ -41,8 +41,9 @@ basePath
 	^ 'api'
 !
 
-path
-	^ self basePath,'/', self modelPath
+jsonIgnoreInstanceVariables
+
+	^ super jsonIgnoreInstanceVariables, #('announcer')
 !
 
 modelPath
@@ -52,9 +53,8 @@ modelPath
 	^ self name
 !
 
-jsonIgnoreInstanceVariables
-
-	^ super jsonIgnoreInstanceVariables, #('announcer')
+path
+	^ self basePath,'/', self modelPath
 ! !
 
 !Model class methodsFor: 'initialization'!
@@ -66,35 +66,26 @@ initialize
 	Package defaultCommitPathJs: '/flow/commit'
 ! !
 
+Model subclass: #JsonModel
+	instanceVariableNames: 'data'
+	package: 'Flow-Models'!
+
 Model subclass: #PersistentModel
 	instanceVariableNames: 'data'
-	category: 'Flow-Models'!
+	package: 'Flow-Models'!
 
 !PersistentModel methodsFor: 'accessing'!
 
-id: aString
+at: aKey
 
-	data at: #id put: aString
+	^ data at: aKey
 !
 
-id
+at: aKey put: anObject
 
-	^ data at: #id
-!
+	data at: aKey put: anObject.
 
-url
-
-	^ self path,'/',self id asString
-!
-
-path 
-
-	^ self class path
-!
-
-createdOn: aDate
-
-	self at: #createdOn put: aDate
+	^ anObject
 !
 
 createdOn 
@@ -112,9 +103,34 @@ createdOn
 	^ self at: selector asString put: (self dateAndTimeAt: selector).
 !
 
+createdOn: aDate
+
+	self at: #createdOn put: aDate
+!
+
 data
 
 	^ data
+!
+
+dateAndTimeAt: aSelector
+
+	^ Date fromString: (self at: aSelector)
+!
+
+id
+
+	^ data at: #id
+!
+
+id: aString
+
+	data at: #id put: aString
+!
+
+path 
+
+	^ self class path
 !
 
 subModelAt: aSelector
@@ -133,56 +149,12 @@ subModelAt: aSelector
 	^ modelClass fromReified: subModelData
 !
 
-at: aKey
+url
 
-	^ data at: aKey
-!
-
-at: aKey put: anObject
-
-	data at: aKey put: anObject.
-
-	^ anObject
-!
-
-dateAndTimeAt: aSelector
-
-	^ Date fromString: (self at: aSelector)
+	^ self path,'/',self id asString
 ! !
 
 !PersistentModel methodsFor: 'actions'!
-
-update
-
-	self updateDo: [nil]
-!
-
-delete
-
-	self deleteDo:[nil]
-!
-
-syncWith: aReifiedJSON
-	"Sync the current values in this model 
-	with the ones coming in aReifiedJSON."
-
-	data := aReifiedJSON
-!
-
-refresh
-	"Re-read this model's state."
-
-	self refreshDo:[nil]
-!
-
-save
-	^ self saveDo:[nil]
-!
-
-syncFrom: someJson
-
-	self syncWith: (self class reify: someJson)
-!
 
 asJSONString
 
@@ -191,23 +163,27 @@ asJSONString
 	^ JSON stringify: data
 !
 
-doesNotUnderstand: aMessage
-	"The idea behind this DNU is to use the selector as setters or getter 
-	delegating to data (aJsonObject)"
-	
-	| key |
+create
 
+	^ self createDo:[nil]
+!
 
-	key := aMessage selector asSymbol.
+createDo: aBlock
 
-	key isUnary ifTrue: [
-		^ data at: key asString].
+	jQuery ajax: #{
+		'url' -> self path.
+		'type' -> 'POST'.
+		'data' -> self asJSONString.
+		'success' -> [:x| self onAfterCreate: x done: aBlock].
+		'fail' -> [:x| ModelCreateError signal: 'Could not create ', self class name,':  ', x responseText].
+		'error' -> [:x| ModelCreateError signal: 'Could not create ', self class name,':  ', x responseText]}.
 
-	^ (key isKeyword and: [
-	(key asString occurrencesOf: ':') = 1])
-		ifTrue: [key := key allButLast.
-				data at: key asString put: aMessage arguments first]
-		ifFalse: [super doesNotUnderstand: aMessage]
+	^ self
+!
+
+delete
+
+	self deleteDo:[nil]
 !
 
 deleteDo: aBlock
@@ -221,6 +197,33 @@ deleteDo: aBlock
 		'error' -> [:x| self onDeleteFail: x]}
 !
 
+doesNotUnderstand: aMessage
+	"The idea behind this DNU is to use the selector as setters or getter 
+	delegating to data (aJsonObject)"
+	
+	| key |
+
+
+	key := aMessage selector asSymbol.
+
+	key isUnary ifTrue: [
+		(data isKindOf: HashedCollection)
+			ifTrue:[^ data at: key asString ifAbsent:[nil]]
+			ifFalse:[^ data at: key asString]].
+
+	^ (key isKeyword and: [
+	(key asString occurrencesOf: ':') = 1])
+		ifTrue: [key := key allButLast.
+				data at: key asString put: aMessage arguments first]
+		ifFalse: [super doesNotUnderstand: aMessage]
+!
+
+refresh
+	"Re-read this model's state."
+
+	self refreshDo:[nil]
+!
+
 refreshDo: aBlock
 	"Re-read this model's state."
 
@@ -232,8 +235,29 @@ refreshDo: aBlock
 		'error' -> [:x| self onRefreshFail: x]}
 !
 
+save
+	^ self saveDo:[nil]
+!
+
 saveDo: aBlock
 	^ self updateDo: aBlock
+!
+
+syncFrom: someJson
+
+	self syncWith: (self class reify: someJson)
+!
+
+syncWith: aReifiedJSON
+	"Sync the current values in this model 
+	with the ones coming in aReifiedJSON."
+
+	data := aReifiedJSON
+!
+
+update
+
+	self updateDo: [nil]
 !
 
 updateDo: aBlock
@@ -253,31 +277,21 @@ initialize
 
 	super initialize.
 
-	data := <new Object()>
+	data := HashedCollection new
 ! !
 
 !PersistentModel methodsFor: 'reactions'!
 
-onUpdateFail: x
-
-	ModelUpdateError signal: 'Could not update ', self class name
-!
-
-onDeleteFail: x
-
-	ModelUpdateError signal: 'Could not delete ', self class name
-!
-
-onRefreshFail: x
-
-	ModelRefreshError signal: 'Could not refresh ', self class name
-!
-
 onAboutToJSON
 	"This model is about to be stringified in JSON.
 	All inst var values that are expected to be model objects, need to be instanciated as expected."
+	| obj keys |
 
-	data keys do:[:key| |value|
+	obj := <Object>.
+	obj := JSObjectProxy on: obj.
+	keys := obj keys: data. 
+
+	keys do:[:key| |value|
 		value := data at: key.
 		"Transcript cr; show: self class name,'>>onAboutToJSON  -> ', key asString, ' -> ', value printString."
 
@@ -298,17 +312,17 @@ onAfterCreate: x done: aBlock
 	aBlock value: self
 !
 
-onAfterRefresh: x done: aBlock
-
-	self syncWith: (self class reify: x).
-	self announce: (ModelRefreshed for: self).
-	aBlock value: self
-!
-
 onAfterDelete: x done: aBlock
 	
 	self announce: (ModelDeleted for: self).
 
+	aBlock value: self
+!
+
+onAfterRefresh: x done: aBlock
+
+	self syncWith: (self class reify: x).
+	self announce: (ModelRefreshed for: self).
 	aBlock value: self
 !
 
@@ -317,6 +331,21 @@ onAfterUpdate: x done: aBlock
 	self announce: (ModelUpdated for: self).
 
 	aBlock value: self
+!
+
+onDeleteFail: x
+
+	ModelUpdateError signal: 'Could not delete ', self class name
+!
+
+onRefreshFail: x
+
+	ModelRefreshError signal: 'Could not refresh ', self class name
+!
+
+onUpdateFail: x
+
+	ModelUpdateError signal: 'Could not update ', self class name
 ! !
 
 !PersistentModel class methodsFor: 'accessing'!
@@ -329,21 +358,31 @@ atId: anId
 
 !PersistentModel class methodsFor: 'actions'!
 
-read: anId
-
-	self read: anId do: [nil]
-!
-
 create
 
 	^ self createDo: [nil]
 !
 
-reify: someJson
-	"Returns a simple javascript object with
-	the attributes meant for the matching instance variable content of this model."
+createDo: aBlock
 
-	^ JSON parse: someJson
+	| newInstance |
+
+	newInstance := self basicNew initialize.
+
+	jQuery ajax: #{
+		'url' -> self path.
+		'type' -> 'POST'.
+		'data' -> newInstance asJSONString.
+		'success' -> [:x| newInstance onAfterCreate: x done: aBlock].
+		'fail' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText].
+		'error' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText]}.
+
+	^ newInstance
+!
+
+createdOnFrom: aReifiedJSON
+
+	^ Date fromString: aReifiedJSON
 !
 
 fromJson: someJson
@@ -360,31 +399,15 @@ fromReified: aReifiedJSON
 	^ self new syncWith: aReifiedJSON
 !
 
-createdOnFrom: aReifiedJSON
-
-	^ Date fromString: aReifiedJSON
-!
-
 manyFromJson: someJson
 
 	^ (JSON parse: someJson) collect:[:each|
 		 self fromReified: each ]
 !
 
-createDo: aBlock
+read: anId
 
-	| newInstance |
-
-	newInstance := self basicNew initialize.
-
-	jQuery ajax: #{ 
-		'url' -> self path.
-		'type' -> 'POST'.
-		'success' -> [:x| newInstance onAfterCreate: x done: aBlock].
-		'fail' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText].
-		'error' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText]}.
-
-	^ newInstance
+	self read: anId do: [nil]
 !
 
 read: anId do: aBlock
@@ -395,6 +418,13 @@ read: anId do: aBlock
 		'sucess' -> [:x| self onAfterRead: x done: aBlock].
 		'fail' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText].
 		'error' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText]}
+!
+
+reify: someJson
+	"Returns a simple javascript object with
+	the attributes meant for the matching instance variable content of this model."
+
+	^ JSON parse: someJson
 ! !
 
 !PersistentModel class methodsFor: 'reactions'!
@@ -405,8 +435,4 @@ onAfterRead: someJson done: aBlock
 	aBlock value: self.
 	^ self
 ! !
-
-Model subclass: #JsonModel
-	instanceVariableNames: 'data'
-	category: 'Flow-Models'!
 

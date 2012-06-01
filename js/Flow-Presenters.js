@@ -629,7 +629,7 @@ smalltalk.addMethod(
 unescape('_paint_'),
 smalltalk.method({
 selector: unescape('paint%3A'),
-category: 'actions',
+category: 'painting',
 fn: function (aPresenter){
 var self=this;
 smalltalk.send((function(){return smalltalk.send(aPresenter, "_paintOnJQuery_", [smalltalk.send(self, "_asJQuery", [])]);}), "_on_do_", [(smalltalk.Error || Error), (function(x){return smalltalk.send(self, "_halt", []);})]);
@@ -1574,6 +1574,42 @@ return self;},
 args: [],
 source: unescape('isLoaded%0A%0A%09%5E%20items%20notNil'),
 messageSends: ["notNil"],
+referencedClasses: []
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_refreshDo_'),
+smalltalk.method({
+selector: unescape('refreshDo%3A'),
+category: 'actions',
+fn: function (aBlock){
+var self=this;
+try{((($receiver = smalltalk.send(self, "_isLoaded", [])).klass === smalltalk.Boolean) ? (! $receiver ? (function(){return (function(){throw({name: 'stReturn', selector: '_refreshDo_', fn: function(){return self}})})();})() : nil) : smalltalk.send($receiver, "_ifFalse_", [(function(){return (function(){throw({name: 'stReturn', selector: '_refreshDo_', fn: function(){return self}})})();})]));
+smalltalk.send(self, "_reset", []);
+smalltalk.send(self, "_loadAndPaintOn_done_", [smalltalk.send(self, "_newCanvas", []), aBlock]);
+return self;
+} catch(e) {if(e.name === 'stReturn' && e.selector === '_refreshDo_'){return e.fn()} throw(e)}},
+args: ["aBlock"],
+source: unescape('refreshDo%3A%20aBlock%0A%0A%09self%20isLoaded%20ifFalse%3A%5B%5Eself%5D.%0A%0A%09self%20reset.%0A%09self%20loadAndPaintOn%3A%20self%20newCanvas%20done%3A%20aBlock'),
+messageSends: ["ifFalse:", "isLoaded", "reset", "loadAndPaintOn:done:", "newCanvas"],
+referencedClasses: []
+}),
+smalltalk.ItemsPresenter);
+
+smalltalk.addMethod(
+unescape('_loadAndPaintOn_done_'),
+smalltalk.method({
+selector: unescape('loadAndPaintOn%3Adone%3A'),
+category: 'painting',
+fn: function (html, aBlock){
+var self=this;
+smalltalk.send(self, "_onAboutToLoad", []);
+smalltalk.send(self, "_itemsDo_", [(function(){smalltalk.send(self, "_paintItemsOn_", [html]);smalltalk.send(self, "_onAfterLoaded", []);return smalltalk.send(aBlock, "_value", []);})]);
+return self;},
+args: ["html", "aBlock"],
+source: unescape('loadAndPaintOn%3A%20html%20done%3A%20aBlock%0A%0A%09self%20onAboutToLoad.%0A%0A%09self%20itemsDo%3A%5B%0A%09%09self%20paintItemsOn%3A%20html.%0A%09%09self%20onAfterLoaded.%0A%09%09aBlock%20value%5D'),
+messageSends: ["onAboutToLoad", "itemsDo:", "paintItemsOn:", "onAfterLoaded", "value"],
 referencedClasses: []
 }),
 smalltalk.ItemsPresenter);
