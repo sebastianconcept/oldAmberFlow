@@ -184,9 +184,7 @@ open
 	
 	self onAboutToOpen.
 
-	self paintOnJQuery: 'body' asJQuery.
-
-	self onAfterOpen
+	self paintOnJQuery: 'body' asJQuery
 !
 
 newCanvasOn: aJQuery
@@ -214,6 +212,12 @@ append: aPresenter
 	wrapper append: aPresenter asJQuery
 !
 
+paint: aPresenter
+	"Paints the (sub)preenter aPresenter in this (parent)presenter."
+
+	aPresenter paintOnJQuery: self asJQuery
+!
+
 hideAll
 	"Hide all the children.
 	Note: it's done in such a way that if they don't exist they won't evoked."
@@ -239,14 +243,13 @@ remove: aPresenter
 		(v == aPresenter) ifTrue:[
 			target := k]].
 
-	aPresenter asJQuery remove.
-	self children removeKey: target ifAbsent:[nil].
+	self children removeKey: target ifAbsent:[^nil].
+	aPresenter asJQuery remove
 !
 
 removeAll
 
-	self subPresenters do:[:e| 
-		e remove]
+	self subPresenters do:[:e| self remove: e]
 !
 
 feedbackText: aString
@@ -269,30 +272,23 @@ neutralFeedbackText: aString
 	self announce: (FeedbackRequest for: aString) beNeutral
 !
 
-setId: aString
+removeAt: aSymbol
+	"Removes the subpresenter found at aSymbol."
 
-	wrapper id: aString
+	| target |
+
+	self children keysAndValuesDo:[:k :v|	
+		(k == aSymbol) ifTrue:[
+			target := v]].
+
+	self remove: target
 !
 
 remove
 
-	self removeAll.
-
-	parent 
-		ifNil:[self asJQuery remove.]
-		ifNotNil:[parent remove: self].
-!
-
-removeAt: aKey
-	"Removes the (sub)presenter found at aKey
-	does nothing otherwise."
-	| target |
-
-	self children keysAndValuesDo:[:k :v|	
-		(k == aKey) ifTrue:[
-			target := v]].
-
-	target ifNotNil:[target remove]
+	self parent notNil 
+		ifTrue:[self parent remove: self]
+		ifFalse:[self asJQuery remove]
 ! !
 
 !Presenter methodsFor: 'initialization'!
@@ -343,12 +339,6 @@ paintOnJQuery: aJQuery
 	"Appends what's being paint by this presenter to aJQuery."
 
 	self appendToJQuery: aJQuery
-!
-
-paint: aPresenter
-	"Paints the (sub)preenter aPresenter in this (parent)presenter."
-
-	[aPresenter paintOnJQuery: self asJQuery] on: Error do:[:x| self halt]
 ! !
 
 !Presenter methodsFor: 'reactions'!
@@ -380,16 +370,6 @@ onHide
 onShow
 
 	"no-op"
-!
-
-onAfterOpen
-
-	"no-op"
-!
-
-onAfterPainted
-
-	"no-op"
 ! !
 
 !Presenter methodsFor: 'rendering'!
@@ -398,14 +378,12 @@ renderOn: html
 	"Start to paint this presenter.
 	Note: presenters are always wrapped in a div using as CSS class
 	it's class name."
-
+	
 	wrapper := html div.
 	
 	wrapper
 		class: self class name;
 		with:[self paintOn: html].
-	self onAfterPainted.
-	painted := true.
 ! !
 
 !Presenter methodsFor: 'testing'!
@@ -427,7 +405,7 @@ hasPresenterAt: aKey
 
 isPainted
 
-	^ painted
+	^ wrapper notNil
 ! !
 
 !Presenter class methodsFor: 'accessing'!
@@ -610,14 +588,6 @@ makeItemsFromJson: someJson
 	"Answers the collection of items reified from someJson."
 
 	self subclassResponsibility
-!
-
-refreshDo: aBlock
-
-	self isLoaded ifFalse:[^self].
-
-	self reset.
-	self loadAndPaintOn: self newCanvas done: aBlock
 ! !
 
 !ItemsPresenter methodsFor: 'initializing'!
@@ -654,16 +624,6 @@ loadAndPaintOn: html
 	self itemsDo:[
 		self paintItemsOn: html.
 		self onAfterLoaded]
-!
-
-loadAndPaintOn: html done: aBlock
-
-	self onAboutToLoad.
-
-	self itemsDo:[
-		self paintItemsOn: html.
-		self onAfterLoaded.
-		aBlock value]
 ! !
 
 !ItemsPresenter methodsFor: 'reactions'!
@@ -952,13 +912,6 @@ makeFeedback
 
 initializeFeedback
 	^ feedback := self makeFeedback
-!
-
-initialize
-
-	super initialize.
-
-	(window jQuery: window) bind: 'hashchange' do: [self onHash].
 ! !
 
 !Application methodsFor: 'reactions'!
@@ -969,19 +922,6 @@ onFeedback: anAnnouncement
 
 	polarity := anAnnouncement polarity.
 	self perform: (polarity, 'FeedbackText:') withArguments: (Array with: anAnnouncement subject)
-!
-
-onAfterOpen
-
-	super onAfterOpen.
-
-	window at: 'app' put: self
-!
-
-onHash
-	"The hash in the application URL has changed."
-
-	"no-op"
 ! !
 
 Presenter subclass: #Feedback
@@ -1090,21 +1030,6 @@ onClose
 Presenter subclass: #TagBrushPresenter
 	instanceVariableNames: ''
 	category: 'Flow-Presenters'!
-!TagBrushPresenter commentStamp!
-This presenter is a wrapping facility for aTagBrush.
-
-Its value is in wrapping aTagBrush as if it were a flow presenter.
-
-So you can make something like
-
-anAlbum>>makeAddTrack
-
-	aTagBrush := html div id: 'quickDiv'; class: 'aham'; with:[html a with: 'add new track'].
-
-	^ TagBrushPresenter for: aTagBrush
-
-
-In that way, your Album presenter can treat that div as if it were a subpresenter!
 
 !TagBrushPresenter class methodsFor: 'actions'!
 

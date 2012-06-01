@@ -1,31 +1,5 @@
 Smalltalk current createPackage: 'Flow-Examples' properties: #{}!
-PersistentModel subclass: #ToDo
-	instanceVariableNames: 'name description'
-	category: 'Flow-Examples'!
-
-!ToDo methodsFor: 'accessing'!
-
-name
-
-	^ name
-!
-
-description
-
-	^ description
-!
-
-description: aString
-
-	description := aString
-!
-
-name: aString
-
-	name := aString
-! !
-
-PersistentModel subclass: #ToDoList
+JsonModel subclass: #ToDoList
 	instanceVariableNames: 'toDos'
 	category: 'Flow-Examples'!
 
@@ -78,5 +52,31 @@ example
 oneOfToDosFrom: aReifiedJSON
 
 	ToDo reifyFrom: aReifiedJSON
+! !
+
+JsonModel subclass: #ToDo
+	instanceVariableNames: 'name description'
+	category: 'Flow-Examples'!
+
+!ToDo methodsFor: 'accessing'!
+
+name
+
+	^ name
+!
+
+description
+
+	^ description
+!
+
+description: aString
+
+	description := aString
+!
+
+name: aString
+
+	name := aString
 ! !
 

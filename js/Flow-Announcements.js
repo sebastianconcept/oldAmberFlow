@@ -200,12 +200,3 @@ smalltalk.FeedbackRequest);
 
 
 
-smalltalk.addClass('SaveChanges', smalltalk.Announcement, [], 'Flow-Announcements');
-
-
-smalltalk.addClass('DiscardChanges', smalltalk.Announcement, [], 'Flow-Announcements');
-
-
-smalltalk.addClass('GoBackClicked', smalltalk.Announcement, [], 'Flow-Announcements');
-
-

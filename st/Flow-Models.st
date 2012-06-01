@@ -1,7 +1,7 @@
 Smalltalk current createPackage: 'Flow-Models' properties: #{}!
 Object subclass: #Model
 	instanceVariableNames: 'announcer'
-	package: 'Flow-Models'!
+	category: 'Flow-Models'!
 !Model commentStamp!
 Models are meant to be used as local-only (at the DOM) objects that should be transident in nature (not-persistent)!
 
@@ -41,9 +41,8 @@ basePath
 	^ 'api'
 !
 
-jsonIgnoreInstanceVariables
-
-	^ super jsonIgnoreInstanceVariables, #('announcer')
+path
+	^ self basePath,'/', self modelPath
 !
 
 modelPath
@@ -53,8 +52,9 @@ modelPath
 	^ self name
 !
 
-path
-	^ self basePath,'/', self modelPath
+jsonIgnoreInstanceVariables
+
+	^ super jsonIgnoreInstanceVariables, #('announcer')
 ! !
 
 !Model class methodsFor: 'initialization'!
@@ -66,26 +66,35 @@ initialize
 	Package defaultCommitPathJs: '/flow/commit'
 ! !
 
-Model subclass: #JsonModel
+Model subclass: #JsonPersistentModel
 	instanceVariableNames: 'data'
-	package: 'Flow-Models'!
+	category: 'Flow-Models'!
 
-Model subclass: #PersistentModel
-	instanceVariableNames: 'data'
-	package: 'Flow-Models'!
+!JsonPersistentModel methodsFor: 'accessing'!
 
-!PersistentModel methodsFor: 'accessing'!
+id: aString
 
-at: aKey
-
-	^ data at: aKey
+	data at: #id put: aString
 !
 
-at: aKey put: anObject
+id
 
-	data at: aKey put: anObject.
+	^ data at: #id
+!
 
-	^ anObject
+url
+
+	^ self path,'/',self id asString
+!
+
+path 
+
+	^ self class path
+!
+
+createdOn: aDate
+
+	self at: #createdOn put: aDate
 !
 
 createdOn 
@@ -103,34 +112,9 @@ createdOn
 	^ self at: selector asString put: (self dateAndTimeAt: selector).
 !
 
-createdOn: aDate
-
-	self at: #createdOn put: aDate
-!
-
 data
 
 	^ data
-!
-
-dateAndTimeAt: aSelector
-
-	^ Date fromString: (self at: aSelector)
-!
-
-id
-
-	^ data at: #id
-!
-
-id: aString
-
-	data at: #id put: aString
-!
-
-path 
-
-	^ self class path
 !
 
 subModelAt: aSelector
@@ -149,36 +133,28 @@ subModelAt: aSelector
 	^ modelClass fromReified: subModelData
 !
 
-url
+at: aKey
 
-	^ self path,'/',self id asString
+	^ data at: aKey
+!
+
+at: aKey put: anObject
+
+	data at: aKey put: anObject.
+
+	^ anObject
+!
+
+dateAndTimeAt: aSelector
+
+	^ Date fromString: (self at: aSelector)
 ! !
 
-!PersistentModel methodsFor: 'actions'!
+!JsonPersistentModel methodsFor: 'actions'!
 
-asJSONString
+update
 
-	self onAboutToJSON.
-
-	^ JSON stringify: data
-!
-
-create
-
-	^ self createDo:[nil]
-!
-
-createDo: aBlock
-
-	jQuery ajax: #{
-		'url' -> self path.
-		'type' -> 'POST'.
-		'data' -> self asJSONString.
-		'success' -> [:x| self onAfterCreate: x done: aBlock].
-		'fail' -> [:x| ModelCreateError signal: 'Could not create ', self class name,':  ', x responseText].
-		'error' -> [:x| ModelCreateError signal: 'Could not create ', self class name,':  ', x responseText]}.
-
-	^ self
+	self updateDo: [nil]
 !
 
 delete
@@ -186,15 +162,33 @@ delete
 	self deleteDo:[nil]
 !
 
-deleteDo: aBlock
+syncWith: aReifiedJSON
+	"Sync the current values in this model 
+	with the ones coming in aReifiedJSON."
 
-	jQuery ajax: #{ 
-		'url' -> (self path, '/',self id asString).
-		'type' -> 'DELETE'.
-		'data' -> self asJSONString.
-		'success' -> [:x| self onAfterDelete: x done: aBlock].
-		'fail' -> [:x| self onDeleteFail: x].
-		'error' -> [:x| self onDeleteFail: x]}
+	data := aReifiedJSON
+!
+
+refresh
+	"Re-read this model's state."
+
+	self refreshDo:[nil]
+!
+
+save
+	^ self saveDo:[nil]
+!
+
+syncFrom: someJson
+
+	self syncWith: (self class reify: someJson)
+!
+
+asJSONString
+
+	self onAboutToJSON.
+
+	^ JSON stringify: data
 !
 
 doesNotUnderstand: aMessage
@@ -207,9 +201,7 @@ doesNotUnderstand: aMessage
 	key := aMessage selector asSymbol.
 
 	key isUnary ifTrue: [
-		(data isKindOf: HashedCollection)
-			ifTrue:[^ data at: key asString ifAbsent:[nil]]
-			ifFalse:[^ data at: key asString]].
+		^ data at: key asString].
 
 	^ (key isKeyword and: [
 	(key asString occurrencesOf: ':') = 1])
@@ -218,10 +210,14 @@ doesNotUnderstand: aMessage
 		ifFalse: [super doesNotUnderstand: aMessage]
 !
 
-refresh
-	"Re-read this model's state."
+deleteDo: aBlock
 
-	self refreshDo:[nil]
+	jQuery ajax: #{ 
+		'url' -> (self path, '/',self id asString).
+		'type' -> 'DELETE'.
+		'success' -> [:x| self onAfterDelete: x done: aBlock].
+		'fail' -> [:x| self onDeleteFail: x].
+		'error' -> [:x| self onDeleteFail: x]}
 !
 
 refreshDo: aBlock
@@ -235,29 +231,8 @@ refreshDo: aBlock
 		'error' -> [:x| self onRefreshFail: x]}
 !
 
-save
-	^ self saveDo:[nil]
-!
-
 saveDo: aBlock
 	^ self updateDo: aBlock
-!
-
-syncFrom: someJson
-
-	self syncWith: (self class reify: someJson)
-!
-
-syncWith: aReifiedJSON
-	"Sync the current values in this model 
-	with the ones coming in aReifiedJSON."
-
-	data := aReifiedJSON
-!
-
-update
-
-	self updateDo: [nil]
 !
 
 updateDo: aBlock
@@ -271,27 +246,37 @@ updateDo: aBlock
 		'error' -> [:x| self onUpdateFail: x]}
 ! !
 
-!PersistentModel methodsFor: 'initialization'!
+!JsonPersistentModel methodsFor: 'initialization'!
 
 initialize
 
 	super initialize.
 
-	data := HashedCollection new
+	data := <new Object()>
 ! !
 
-!PersistentModel methodsFor: 'reactions'!
+!JsonPersistentModel methodsFor: 'reactions'!
+
+onUpdateFail: x
+
+	ModelUpdateError signal: 'Could not update ', self class name
+!
+
+onDeleteFail: x
+
+	ModelUpdateError signal: 'Could not delete ', self class name
+!
+
+onRefreshFail: x
+
+	ModelRefreshError signal: 'Could not refresh ', self class name
+!
 
 onAboutToJSON
 	"This model is about to be stringified in JSON.
 	All inst var values that are expected to be model objects, need to be instanciated as expected."
-	| obj keys |
 
-	obj := <Object>.
-	obj := JSObjectProxy on: obj.
-	keys := obj keys: data. 
-
-	keys do:[:key| |value|
+	data keys do:[:key| |value|
 		value := data at: key.
 		"Transcript cr; show: self class name,'>>onAboutToJSON  -> ', key asString, ' -> ', value printString."
 
@@ -312,17 +297,17 @@ onAfterCreate: x done: aBlock
 	aBlock value: self
 !
 
-onAfterDelete: x done: aBlock
-	
-	self announce: (ModelDeleted for: self).
-
-	aBlock value: self
-!
-
 onAfterRefresh: x done: aBlock
 
 	self syncWith: (self class reify: x).
 	self announce: (ModelRefreshed for: self).
+	aBlock value: self
+!
+
+onAfterDelete: x done: aBlock
+	
+	self announce: (ModelDeleted for: self).
+
 	aBlock value: self
 !
 
@@ -331,24 +316,9 @@ onAfterUpdate: x done: aBlock
 	self announce: (ModelUpdated for: self).
 
 	aBlock value: self
-!
-
-onDeleteFail: x
-
-	ModelUpdateError signal: 'Could not delete ', self class name
-!
-
-onRefreshFail: x
-
-	ModelRefreshError signal: 'Could not refresh ', self class name
-!
-
-onUpdateFail: x
-
-	ModelUpdateError signal: 'Could not update ', self class name
 ! !
 
-!PersistentModel class methodsFor: 'accessing'!
+!JsonPersistentModel class methodsFor: 'accessing'!
 
 atId: anId
 	"Answers the instance of this model found at anId (or nil)"
@@ -356,11 +326,48 @@ atId: anId
 	^ self read: anId do: [nil]
 ! !
 
-!PersistentModel class methodsFor: 'actions'!
+!JsonPersistentModel class methodsFor: 'actions'!
+
+read: anId
+
+	self read: anId do: [nil]
+!
 
 create
 
 	^ self createDo: [nil]
+!
+
+reify: someJson
+	"Returns a simple javascript object with
+	the attributes meant for the matching instance variable content of this model."
+
+	^ JSON parse: someJson
+!
+
+fromJson: someJson
+	"Answers a new instance of this model and returns it
+	in the state dictated by someJson."
+
+	^ self new syncFrom: someJson
+!
+
+fromReified: aReifiedJSON
+	"Answers a new instance of this model and returns it
+	in sync with aReifiedJSON."
+
+	^ self new syncWith: aReifiedJSON
+!
+
+createdOnFrom: aReifiedJSON
+
+	^ Date fromString: aReifiedJSON
+!
+
+manyFromJson: someJson
+
+	^ (JSON parse: someJson) collect:[:each|
+		 self fromReified: each ]
 !
 
 createDo: aBlock
@@ -369,10 +376,9 @@ createDo: aBlock
 
 	newInstance := self basicNew initialize.
 
-	jQuery ajax: #{
+	jQuery ajax: #{ 
 		'url' -> self path.
 		'type' -> 'POST'.
-		'data' -> newInstance asJSONString.
 		'success' -> [:x| newInstance onAfterCreate: x done: aBlock].
 		'fail' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText].
 		'error' -> [:x| ModelCreateError signal: 'Could not create ', self name,':  ', x responseText]}.
@@ -380,10 +386,137 @@ createDo: aBlock
 	^ newInstance
 !
 
-createdOnFrom: aReifiedJSON
+read: anId do: aBlock
 
-	^ Date fromString: aReifiedJSON
+	jQuery ajax: #{ 
+		'url' -> (self path, '/',anId).
+		'type' -> 'GET'.
+		'sucess' -> [:x| self onAfterRead: x done: aBlock].
+		'fail' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText].
+		'error' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText]}
+! !
+
+!JsonPersistentModel class methodsFor: 'reactions'!
+
+onAfterRead: someJson done: aBlock
+
+	self reify: someJson.
+	aBlock value: self.
+	^ self
+! !
+
+Model subclass: #JsonModel
+	instanceVariableNames: 'data'
+	category: 'Flow-Models'!
+
+!JsonModel methodsFor: 'accessing'!
+
+data
+
+	^ data
 !
+
+at: aKey
+
+	^ data at: aKey
+!
+
+at: aKey put: anObject
+
+	data at: aKey put: anObject.
+
+	^ anObject
+!
+
+subModelAt: aSelector
+	"Answers the reified submodel (instantiating if necessary)."
+	
+	| subModelData modelClass |
+
+	subModelData := data at: aSelector.
+	subModelData ifNil:[^nil].
+	
+	modelClass := subModelData at: 'class'.
+	modelClass := Smalltalk current at: modelClass.
+
+	modelClass ifNil:[^ModelMetadataError signal: 'Cannot find ',aSelector asString,'''s class for this metadata'].
+	
+	^ modelClass fromReified: subModelData
+!
+
+dateAndTimeAt: aSelector
+
+	^ Date fromString: (self at: aSelector)
+! !
+
+!JsonModel methodsFor: 'actions'!
+
+asJSONString
+
+	self onAboutToJSON.
+
+	^ JSON stringify: data
+!
+
+syncFrom: someJson
+
+	self syncWith: (self class reify: someJson)
+!
+
+syncWith: aReifiedJSON
+	"Sync the current values in this model 
+	with the ones coming in aReifiedJSON."
+
+	data := aReifiedJSON
+!
+
+doesNotUnderstand: aMessage
+	"The idea behind this DNU is to use the selector as setters or getter 
+	delegating to data (aJsonObject)"
+	
+	| key |
+
+	key := aMessage selector asSymbol.
+
+	key isUnary ifTrue: [
+		^ data at: key asString].
+
+	^ (key isKeyword and: [
+	(key asString occurrencesOf: ':') = 1])
+		ifTrue: [key := key allButLast.
+				data at: key asString put: aMessage arguments first]
+		ifFalse: [super doesNotUnderstand: aMessage]
+! !
+
+!JsonModel methodsFor: 'initialization'!
+
+initialize
+
+	super initialize.
+
+	data := <new Object()>
+! !
+
+!JsonModel methodsFor: 'reactions'!
+
+onAboutToJSON
+	"This model is about to be stringified in JSON.
+	All inst var values that are expected to be model objects, need to be instanciated as expected."
+
+	data keys do:[:key| |value|
+		value := data at: key.
+		"Transcript cr; show: self class name,'>>onAboutToJSON  -> ', key asString, ' -> ', value printString."
+
+		"If the value is a js object proxy, we assume it's the data for a (composed) flow model, 
+		so we call the getter in this receiver expecting to get it properly instantiated (because that's our convention here)."
+		(value isKindOf: JSObjectProxy) ifTrue:[
+			(self respondsTo: key) ifFalse:[ModelGetterIsMissing signal: 'Cannot find getter for: ', key].
+			value := self perform: key asSymbol.
+			value onAboutToJSON.
+			data at: key put: value]].
+! !
+
+!JsonModel class methodsFor: 'actions'!
 
 fromJson: someJson
 	"Answers a new instance of this model and returns it
@@ -405,34 +538,10 @@ manyFromJson: someJson
 		 self fromReified: each ]
 !
 
-read: anId
-
-	self read: anId do: [nil]
-!
-
-read: anId do: aBlock
-
-	jQuery ajax: #{ 
-		'url' -> (self path, '/',anId).
-		'type' -> 'GET'.
-		'sucess' -> [:x| self onAfterRead: x done: aBlock].
-		'fail' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText].
-		'error' -> [:x| ModelReadError signal: 'Could not read ', self name,':  ', x responseText]}
-!
-
 reify: someJson
 	"Returns a simple javascript object with
 	the attributes meant for the matching instance variable content of this model."
 
 	^ JSON parse: someJson
-! !
-
-!PersistentModel class methodsFor: 'reactions'!
-
-onAfterRead: someJson done: aBlock
-
-	self reify: someJson.
-	aBlock value: self.
-	^ self
 ! !
 
